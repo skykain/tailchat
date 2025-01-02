@@ -1,16 +1,13 @@
-import { AvatarUploader } from '@/components/AvatarUploader';
+import { AvatarUploader } from '@/components/ImageUploader';
 import {
   DefaultFullModalInputEditorRender,
   FullModalField,
 } from '@/components/FullModal/Field';
 import { openModal } from '@/components/Modal';
 import { closeModal, pluginUserExtraInfo } from '@/plugin/common';
-import { getGlobalSocket } from '@/utils/global-state-helper';
 import { setUserJWT } from '@/utils/jwt-helper';
-import { setGlobalUserLoginInfo } from '@/utils/user-helper';
-import { Button, Divider, Tag, Typography } from 'antd';
+import { Button, Divider, message, Tag, Typography } from 'antd';
 import React, { useCallback } from 'react';
-import { useNavigate } from 'react-router';
 import { Avatar } from 'tailchat-design';
 import {
   model,
@@ -19,6 +16,7 @@ import {
   showToasts,
   t,
   UploadFileResult,
+  useAlphaMode,
   useAppDispatch,
   useAsyncRequest,
   userActions,
@@ -26,11 +24,12 @@ import {
 } from 'tailchat-shared';
 import { EmailVerify } from '../EmailVerify';
 import { ModifyPassword } from '../ModifyPassword';
+import { isBuiltinEmail } from '@/utils/user-helper';
 
 export const SettingsAccount: React.FC = React.memo(() => {
   const userInfo = useUserInfo();
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
+  const { isAlphaMode } = useAlphaMode();
   const userExtra = userInfo?.extra ?? {};
 
   const [, handleUserAvatarChange] = useAsyncRequest(
@@ -56,7 +55,7 @@ export const SettingsAccount: React.FC = React.memo(() => {
           fieldValue: newNickname,
         })
       );
-      showToasts(t('修改头像成功'), 'success');
+      showToasts(t('修改昵称成功'), 'success');
     },
     []
   );
@@ -95,14 +94,17 @@ export const SettingsAccount: React.FC = React.memo(() => {
       <div className="flex flex-wrap">
         <div className="w-1/3 mobile:w-full">
           <AvatarUploader
-            className="text-4xl"
             circle={true}
+            usage="user"
             onUploadSuccess={handleUserAvatarChange}
           >
             <Avatar size={128} src={userInfo.avatar} name={userInfo.nickname} />
           </AvatarUploader>
         </div>
         <div className="w-2/3 mobile:w-full">
+          {isAlphaMode && (
+            <FullModalField title={t('用户ID')} content={userInfo._id} />
+          )}
           <FullModalField
             title={t('用户昵称')}
             value={userInfo.nickname}
@@ -116,7 +118,11 @@ export const SettingsAccount: React.FC = React.memo(() => {
             content={
               <div>
                 <span className="mr-1">{userInfo.email}</span>
-                {userInfo.emailVerified ? (
+                {isBuiltinEmail(userInfo.email) ? (
+                  <Tag color="default" className="select-none">
+                    {t('内置邮箱')}
+                  </Tag>
+                ) : userInfo.emailVerified ? (
                   <Tag color="success" className="select-none">
                     {t('已认证')}
                   </Tag>
@@ -125,6 +131,13 @@ export const SettingsAccount: React.FC = React.memo(() => {
                     color="warning"
                     className="cursor-pointer"
                     onClick={() => {
+                      if (userInfo.temporary) {
+                        message.warning(
+                          t('临时用户无法认证邮箱, 请先认领账号')
+                        );
+                        return;
+                      }
+
                       const key = openModal(
                         <EmailVerify
                           onSuccess={() => {

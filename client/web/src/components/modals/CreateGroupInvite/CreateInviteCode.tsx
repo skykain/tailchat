@@ -1,6 +1,7 @@
 import { InviteCodeExpiredAt } from '@/components/InviteCodeExpiredAt';
+import { closeModal, openModal } from '@/components/Modal';
 import { generateInviteCodeUrl } from '@/utils/url-helper';
-import { Menu, Typography, Dropdown, MenuProps } from 'antd';
+import { Menu, Typography, Dropdown, MenuProps, Button } from 'antd';
 import React, { useState } from 'react';
 import {
   useAsyncRequest,
@@ -9,7 +10,10 @@ import {
   GroupInvite,
   PERMISSION,
   useHasGroupPermission,
+  useEvent,
+  showToasts,
 } from 'tailchat-shared';
+import { EditGroupInvite } from '../EditGroupInvite';
 import styles from './CreateInviteCode.module.less';
 
 enum InviteCodeType {
@@ -20,9 +24,10 @@ enum InviteCodeType {
 interface CreateInviteCodeProps {
   groupId: string;
   onInviteCreated?: () => void;
+  onInviteUpdated?: () => void;
 }
 export const CreateInviteCode: React.FC<CreateInviteCodeProps> = React.memo(
-  ({ groupId, onInviteCreated }) => {
+  ({ groupId, onInviteCreated, onInviteUpdated }) => {
     const [createdInvite, setCreateInvite] = useState<GroupInvite | null>(null);
     const [{ loading }, handleCreateInviteLink] = useAsyncRequest(
       async (inviteType: InviteCodeType) => {
@@ -37,6 +42,34 @@ export const CreateInviteCode: React.FC<CreateInviteCodeProps> = React.memo(
         PERMISSION.core.invite,
         PERMISSION.core.unlimitedInvite,
       ]);
+
+    const handleEditGroupInvite = useEvent(() => {
+      if (!createdInvite) {
+        return;
+      }
+
+      const key = openModal(
+        <EditGroupInvite
+          groupId={groupId}
+          code={createdInvite.code}
+          onEditSuccess={({ expiredAt, usageLimit }) => {
+            showToasts(t('邀请设置修改成功'), 'success');
+            setCreateInvite(
+              (state) =>
+                ({
+                  ...state,
+                  expiredAt: expiredAt
+                    ? new Date(expiredAt).toISOString()
+                    : undefined,
+                  usageLimit: usageLimit,
+                } as any)
+            );
+            closeModal(key);
+            onInviteUpdated?.();
+          }}
+        />
+      );
+    });
 
     const menu: MenuProps = {
       items: [
@@ -62,6 +95,9 @@ export const CreateInviteCode: React.FC<CreateInviteCodeProps> = React.memo(
             </Typography.Title>
             <p className="text-gray-500 text-sm">
               <InviteCodeExpiredAt invite={createdInvite} />
+              <Button type="link" size="small" onClick={handleEditGroupInvite}>
+                {t('编辑')}
+              </Button>
             </p>
           </div>
         ) : (

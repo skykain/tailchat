@@ -4,7 +4,8 @@ import Head from '@docusaurus/Head';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Translate from '@docusaurus/Translate';
 import { useColorMode } from '@docusaurus/theme-common';
-import { inviteLink, nightlyUrl } from '../utils/consts';
+import { inviteLink, nightlyUrl, releaseNoteUrl } from '../utils/consts';
+import packageJson from '../../../package.json';
 import './HomepageHeader.less';
 
 const alternative = [
@@ -51,8 +52,9 @@ export const HomepageHeader: React.FC = React.memo(() => {
           Tailchat: {siteConfig.tagline}
           <small>
             <Link
-              className="umami--click--what-is-noim"
               href="/blog/2023/03/01/the-era-of-noIM"
+              data-umami-event="what-is-noim"
+              data-tianji-event="what-is-noim"
             >
               <Translate>What is noIM(not only IM)?</Translate>
             </Link>
@@ -61,23 +63,42 @@ export const HomepageHeader: React.FC = React.memo(() => {
 
         <div className="btns">
           <Link
-            className="button button--primary button--lg umami--click--joingroup"
+            className="button button--primary button--lg"
             to={inviteLink}
+            data-umami-event="joingroup"
+            data-tianji-event="joingroup"
           >
             <Translate>Join our Group</Translate>
           </Link>
 
           <Link
-            className="button button--secondary button--lg umami--click--learnmore"
+            className="button button--secondary button--lg"
             href="/docs/intro"
+            data-umami-event="learnmore"
+            data-tianji-event="learnmore"
           >
             <Translate>Learn More</Translate>
           </Link>
         </div>
 
         <div className="link">
-          <Link className="umami--click--direct-nightly" to={nightlyUrl}>
+          <Link
+            to={nightlyUrl}
+            data-umami-event="direct-nightly"
+            data-tianji-event="direct-nightly"
+          >
             <Translate>Or direct visit Tailchat nightly version</Translate>
+          </Link>
+        </div>
+
+        <div className="version">
+          <Translate>Current version</Translate>: v{packageJson.version},{' '}
+          <Link
+            to={releaseNoteUrl}
+            data-umami-event="release-note"
+            data-tianji-event="release-note"
+          >
+            <Translate>release note</Translate>
           </Link>
         </div>
       </div>

@@ -1,6 +1,6 @@
 {
   "name": "tailchat-desktop",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "A foundation for scalable desktop apps",
   "license": "MIT",
   "author": {
@@ -14,5 +14,7 @@
     "postinstall": "npm run electron-rebuild && npm run link-modules",
     "link-modules": "node -r ts-node/register ../../.erb/scripts/link-modules.ts"
   },
-  "dependencies": {}
+  "dependencies": {
+    "electron-screenshots": "^0.5.23"
+  }
 }

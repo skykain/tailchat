@@ -1,14 +1,25 @@
 import { request } from '../api/request';
+import {
+  GroupPanelType,
+  GroupPanel,
+  GroupRole,
+  GroupInfo as IGroupInfo,
+  GroupBasicInfo,
+  GroupInvite,
+} from 'tailchat-types';
 
-export enum GroupPanelType {
-  TEXT = 0,
-  GROUP = 1,
-  PLUGIN = 2,
-}
+export { GroupPanelType };
+export type { GroupPanel, GroupRole, GroupBasicInfo, GroupInvite };
 
 export const groupConfigNames = [
   // 隐藏群组成员标识位
   'hideGroupMemberDiscriminator',
+
+  // 禁止从群组中发起私信
+  'disableCreateConverseFromGroup',
+
+  // 群组背景图
+  'groupBackgroundImage',
 ] as const;
 
 export type GroupConfigNames = (typeof groupConfigNames)[number] | string; // string is plugin config
@@ -29,69 +40,9 @@ export type GroupPanelFeature =
   | 'subscribe' // 订阅事件变更状态，用于加入socket.io群组
   | 'ack'; // 是否包含已读未读检查，如果包含的话需要同时开启 subscribe 特性
 
-export interface GroupPanel {
-  /**
-   * 在群组中唯一
-   */
-  id: string;
-  /**
-   * 用于显示的面板名
-   */
-  name: string;
-  parentId?: string;
-  type: GroupPanelType;
-  provider?: string; // 面板提供者
-  pluginPanelName?: string; // 插件面板名
-  meta?: Record<string, unknown>;
-}
-
-export interface GroupRole {
-  _id: string;
-  /**
-   * 权限组名
-   */
-  name: string;
-  /**
-   * 拥有的权限, 是一段字符串
-   */
-  permissions: string[];
-}
-
-export interface GroupInfo {
-  _id: string;
-  name: string;
-  avatar?: string;
-  owner: string;
-  members: GroupMember[];
-  panels: GroupPanel[];
-  roles: GroupRole[];
+export interface GroupInfo extends Omit<IGroupInfo, 'config'> {
   config?: Partial<Record<GroupConfigNames, any>>;
-  /**
-   * 所有人的权限列表
-   * 为群组中的最低权限
-   */
-  fallbackPermissions: string[];
-  /**
-   * 被钉选的面板Id
-   */
   pinnedPanelId?: string;
-}
-
-/**
- * 访客级别获取群组信息
- */
-export interface GroupBasicInfo {
-  name: string;
-  avatar?: string;
-  owner: string;
-  memberCount: number;
-}
-
-export interface GroupInvite {
-  code: string;
-  groupId: string;
-  creator: string;
-  expiredAt?: string;
 }
 
 /**
@@ -101,6 +52,7 @@ export function getGroupConfigWithInfo(
   groupInfo: GroupInfo | null | undefined
 ): {
   hideGroupMemberDiscriminator: boolean;
+  disableCreateConverseFromGroup: boolean;
   [key: string]: unknown;
 } {
   const config = groupInfo?.config ?? {};
@@ -108,6 +60,8 @@ export function getGroupConfigWithInfo(
   return {
     ...config,
     hideGroupMemberDiscriminator: config.hideGroupMemberDiscriminator ?? false,
+    disableCreateConverseFromGroup:
+      config.disableCreateConverseFromGroup ?? false,
   };
 }
 
@@ -152,6 +106,7 @@ export async function getGroupBasicInfo(
 type AllowedModifyField =
   | 'name'
   | 'avatar'
+  | 'description'
   | 'panels'
   | 'roles'
   | 'fallbackPermissions';
@@ -259,6 +214,27 @@ export async function createGroupInviteCode(
   });
 
   return data;
+}
+
+/**
+ * 编辑群组邀请链接
+ * @param groupId 群组ID
+ * @param code 邀请码
+ * @param expiredAt 过期时间，是一个时间戳，单位ms，为undefined则为不限制
+ * @param usageLimit 最大使用次数，为undefined则不限制
+ */
+export async function editGroupInvite(
+  groupId: string,
+  code: string,
+  expiredAt?: number,
+  usageLimit?: number
+) {
+  await request.post('/api/group/invite/editGroupInvite', {
+    groupId,
+    code,
+    expiredAt,
+    usageLimit,
+  });
 }
 
 /**

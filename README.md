@@ -5,7 +5,9 @@
 ![Docker Pulls](https://img.shields.io/docker/pulls/moonrailgun/tailchat)
 [![CI](https://github.com/msgbyte/tailchat/actions/workflows/ci.yaml/badge.svg)](https://github.com/msgbyte/tailchat/actions/workflows/ci.yaml)
 [![Codemagic build status](https://api.codemagic.io/apps/63e27be62b9d4ca848b5491d/android/status_badge.svg)](https://codemagic.io/apps/63e27be62b9d4ca848b5491d/android/latest_build)
+[![Desktop Build](https://github.com/msgbyte/tailchat/actions/workflows/desktop-build.yml/badge.svg)](https://github.com/msgbyte/tailchat/actions/workflows/desktop-build.yml)
 [![deploy nightly](https://github.com/msgbyte/tailchat/actions/workflows/vercel-nightly.yml/badge.svg)](https://github.com/msgbyte/tailchat/actions/workflows/vercel-nightly.yml)
+![Tailchat Nightly](https://tianji.moonrailgun.com/monitor/clnzoxcy10001vy2ohi4obbi0/clo1oiwbp001dof5e76cmkzj9/badge.svg)
 
 ![tailchat](https://socialify.git.ci/msgbyte/tailchat/image?description=1&font=Inter&forks=1&issues=1&language=1&logo=https%3A%2F%2Favatars.githubusercontent.com%2Fu%2F86033898%3Fs%3D200%26v%3D4&name=1&owner=1&pattern=Circuit%20Board&stargazers=1&theme=Light)
 
@@ -64,6 +66,11 @@ The front end empowers the application through the plugin system, which is very 
 
 Visit the official website to learn more: [https://tailchat.msgbyte.com/](https://tailchat.msgbyte.com/)
 
+## Quick Deploy
+### Deploy on Sealos
+
+[![Deploy on Sealos](https://raw.githubusercontent.com/labring-actions/templates/main/Deploy-on-Sealos.svg)](https://cloud.sealos.io/?openapp=system-template%3FtemplateName%3Dtailchat)
+
 ## Communication
 
 If you are interested in `Tailchat`, welcome to join `Tailchat`'s seed user exchange group, your feedback can help `Tailchat` grow better
@@ -77,3 +84,11 @@ If you are interested in `Tailchat`, welcome to join `Tailchat`'s seed user exch
 <a href="https://www.producthunt.com/posts/tailchat?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-tailchat" target="_blank">
 <img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=382080&theme=light" alt="Tailchat - The&#0032;next&#0045;generation&#0032;noIM&#0032;Application&#0032;in&#0032;your&#0032;own&#0032;workspace | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" />
 </a>
+
+## Project Activity
+
+![Alt](https://repobeats.axiom.co/api/embed/b85cb500d902e0ad0cecb582557c006d8b663a01.svg "Repobeats analytics image")
+
+## License
+
+[Apache 2.0](./LICENSE)

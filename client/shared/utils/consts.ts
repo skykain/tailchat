@@ -19,9 +19,16 @@ export const LANGUAGE_KEY = 'i18n:language';
 export const SYSTEM_USERID = '000000000000000000000000';
 
 export const defaultGlobalConfig: GlobalConfig = {
+  tianji: {},
   uploadFileLimit: 1 * 1024 * 1024,
   emailVerification: false,
   serverName: 'Tailchat',
+  disableMsgpack: false,
   disableUserRegister: false,
   disableGuestLogin: false,
+  disableCreateGroup: false,
+  disablePluginStore: false,
+  disableAddFriend: false,
+  disableTelemetry: false,
+  announcement: false,
 };

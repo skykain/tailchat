@@ -20,7 +20,8 @@ import {
   EntityError,
   db,
   call,
-  NoPermissionError,
+  BannedError,
+  UserStructWithToken,
 } from 'tailchat-server-sdk';
 import {
   generateRandomNumStr,
@@ -29,6 +30,7 @@ import {
 } from '../../../lib/utils';
 import type { TFunction } from 'i18next';
 import _ from 'lodash';
+import type { UserStruct } from 'tailchat-server-sdk';
 
 const { isValidObjectId, Types } = db;
 
@@ -56,6 +58,7 @@ class UserService extends TcService {
       'avatar',
       'type',
       'emailVerified',
+      'banned',
       'extra',
       'createdAt',
     ]);
@@ -83,8 +86,16 @@ class UserService extends TcService {
       params: {
         username: { type: 'string', optional: true, max: 40 },
         email: { type: 'email', optional: true, max: 40 },
+        nickname: { type: 'string', optional: true, max: 40 },
         password: { type: 'string', max: 40 },
         emailOTP: { type: 'string', optional: true },
+        avatar: { type: 'string', optional: true },
+      },
+    });
+    this.registerAction('signUserToken', this.signUserToken, {
+      visibility: 'public',
+      params: {
+        userId: 'string',
       },
     });
     this.registerAction('modifyPassword', this.modifyPassword, {
@@ -144,6 +155,18 @@ class UserService extends TcService {
         token: 'string',
       },
     });
+    this.registerAction('banUser', this.banUser, {
+      params: {
+        userId: 'string',
+      },
+      visibility: 'public',
+    });
+    this.registerAction('unbanUser', this.unbanUser, {
+      params: {
+        userId: 'string',
+      },
+      visibility: 'public',
+    });
     this.registerAction('whoami', this.whoami);
     this.registerAction(
       'searchUserWithUniqueName',
@@ -160,7 +183,7 @@ class UserService extends TcService {
       },
       cache: {
         keys: ['userId'],
-        ttl: 60 * 60, // 1 hour
+        ttl: 6 * 60 * 60, // 6 hour
       },
     });
     this.registerAction('getUserInfoList', this.getUserInfoList, {
@@ -169,6 +192,18 @@ class UserService extends TcService {
           type: 'array',
           items: 'string',
         },
+      },
+    });
+    this.registerAction('findUserByEmail', this.findUserByEmail, {
+      visibility: 'public',
+      params: {
+        email: 'string',
+      },
+    });
+    this.registerAction('findUserByUsername', this.findUserByUsername, {
+      visibility: 'public',
+      params: {
+        username: 'string',
       },
     });
     this.registerAction('updateUserField', this.updateUserField, {
@@ -215,13 +250,13 @@ class UserService extends TcService {
       },
     });
     this.registerAction('generateUserToken', this.generateUserToken, {
+      visibility: 'public',
       params: {
         userId: 'string',
         nickname: 'string',
         email: 'string',
         avatar: 'string',
       },
-      visibility: 'public',
     });
 
     this.registerAuthWhitelist([
@@ -291,7 +326,7 @@ class UserService extends TcService {
     }
 
     if (user.banned === true) {
-      throw new NoPermissionError(t('用户被封禁'), 403);
+      throw new BannedError(t('用户被封禁'), 403);
     }
 
     // Transform user entity (remove password and all protected fields)
@@ -382,12 +417,14 @@ class UserService extends TcService {
       {
         username?: string;
         email?: string;
+        nickname?: string;
         password: string;
         emailOTP?: string;
+        avatar?: string;
       },
       any
     >
-  ) {
+  ): Promise<UserStructWithToken> {
     const params = { ...ctx.params };
     const t = ctx.meta.t;
     await this.validateEntity(params);
@@ -398,7 +435,8 @@ class UserService extends TcService {
       throw new Error(t('服务器不允许新用户注册'));
     }
 
-    const nickname = params.username ?? getEmailAddress(params.email);
+    const nickname =
+      params.nickname || (params.username ?? getEmailAddress(params.email));
     const discriminator = await this.adapter.model.generateDiscriminator(
       nickname
     );
@@ -427,13 +465,34 @@ class UserService extends TcService {
       nickname,
       discriminator,
       emailVerified,
-      avatar: null,
       createdAt: new Date(),
     });
     const user = await this.transformDocuments(ctx, {}, doc);
     const json = await this.transformEntity(user, true, ctx.meta.token);
     await this.entityChanged('created', json, ctx);
     return json;
+  }
+
+  /**
+   * 签发token
+   * 仅内部可以调用
+   */
+  async signUserToken(
+    ctx: TcContext<{
+      userId: string;
+    }>
+  ): Promise<string> {
+    const userId = ctx.params.userId;
+
+    const userInfo = await call(ctx).getUserInfo(userId);
+    const token = this.generateJWT({
+      _id: userInfo._id,
+      nickname: userInfo.nickname,
+      email: userInfo.email,
+      avatar: userInfo.avatar,
+    });
+
+    return token;
   }
 
   /**
@@ -484,7 +543,7 @@ class UserService extends TcService {
 
     const password = await this.hashPassword(generateRandomStr());
     const doc = await this.adapter.insert({
-      email: `${generateRandomStr()}.temporary@msgbyte.com`,
+      email: `${generateRandomStr()}@temporary.msgbyte.com`,
       password,
       nickname,
       discriminator,
@@ -646,11 +705,11 @@ class UserService extends TcService {
       // token 中没有 _id
       throw new EntityError(t('Token 内容不正确'));
     }
-    const doc = await this.getById(decoded._id);
+    const doc = await this.adapter.model.findById(decoded._id);
     const user: User = await this.transformDocuments(ctx, {}, doc);
 
     if (user.banned === true) {
-      throw new NoPermissionError(t('用户被封禁'));
+      throw new BannedError(t('用户被封禁'));
     }
 
     const json = await this.transformEntity(user, true, ctx.meta.token);
@@ -667,6 +726,66 @@ class UserService extends TcService {
       return true;
     } catch (e) {
       return false;
+    }
+  }
+
+  /**
+   * 封禁用户
+   */
+  async banUser(
+    ctx: TcContext<{
+      userId: string;
+    }>
+  ) {
+    const { userId } = ctx.params;
+    await this.adapter.model.updateOne(
+      {
+        _id: userId,
+      },
+      {
+        banned: true,
+      }
+    );
+
+    await this.cleanUserInfoCache(userId);
+    const tokens = await ctx.call('gateway.getUserSocketToken', {
+      userId,
+    });
+    if (Array.isArray(tokens)) {
+      await Promise.all(
+        tokens.map((token) => this.cleanActionCache('resolveToken', [token]))
+      );
+    }
+
+    await ctx.call('gateway.tickUser', {
+      userId,
+    });
+  }
+
+  /**
+   * 解除封禁用户
+   */
+  async unbanUser(
+    ctx: TcContext<{
+      userId: string;
+    }>
+  ) {
+    const { userId } = ctx.params;
+    await this.adapter.model.updateOne(
+      {
+        _id: userId,
+      },
+      {
+        banned: false,
+      }
+    );
+
+    this.cleanUserInfoCache(userId);
+    const tokens = await ctx.call('gateway.getUserSocketToken', {
+      userId,
+    });
+    if (Array.isArray(tokens)) {
+      tokens.map((token) => this.cleanActionCache('resolveToken', [token]));
     }
   }
 
@@ -726,6 +845,52 @@ class UserService extends TcService {
     );
 
     return list;
+  }
+
+  /**
+   * 通过用户邮箱查找用户
+   */
+  async findUserByEmail(
+    ctx: TcContext<{
+      email: string;
+    }>
+  ): Promise<UserStruct | null> {
+    const email = ctx.params.email;
+
+    const doc = await this.adapter.model.findOne({
+      email,
+    });
+
+    if (!doc) {
+      return null;
+    }
+
+    const user = await this.transformDocuments(ctx, {}, doc);
+
+    return user;
+  }
+
+  /**
+   * 通过用户邮箱查找用户
+   */
+  async findUserByUsername(
+    ctx: TcContext<{
+      username: string;
+    }>
+  ): Promise<UserStruct | null> {
+    const username = ctx.params.username;
+
+    const doc = await this.adapter.model.findOne({
+      username,
+    });
+
+    if (!doc) {
+      return null;
+    }
+
+    const user = await this.transformDocuments(ctx, {}, doc);
+
+    return user;
   }
 
   /**
@@ -940,7 +1105,7 @@ class UserService extends TcService {
   }
 
   /**
-   * 根据用户邮件获取开放平台机器人id
+   * 根据用户邮箱获取开放平台机器人id
    */
   findOpenapiBotId(ctx: TcContext<{ email: string }>): string {
     return this.parseOpenapiBotEmail(ctx.params.email);
@@ -1083,16 +1248,21 @@ class UserService extends TcService {
   }
 
   private buildPluginBotEmail(botId: string) {
-    return `${botId}@tailchat-plugin.com`;
+    return `${botId}@plugin.msgbyte.com`;
   }
 
   private buildOpenapiBotEmail(botId: string) {
-    return `${botId}@tailchat-openapi.com`;
+    return `${botId}@openapi.msgbyte.com`;
   }
 
   private parseOpenapiBotEmail(email: string): string | null {
     if (email.endsWith('@tailchat-openapi.com')) {
+      // 旧的实现，兼容代码
       return email.replace('@tailchat-openapi.com', '');
+    }
+
+    if (email.endsWith('@openapi.msgbyte.com')) {
+      return email.replace('@openapi.msgbyte.com', '');
     }
 
     return null;

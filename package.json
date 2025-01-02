@@ -1,6 +1,6 @@
 {
   "name": "tailchat",
-  "version": "1.7.3",
+  "version": "1.11.10",
   "private": true,
   "description": "",
   "main": "index.js",
@@ -11,15 +11,14 @@
     "dev:admin": "cd server/admin && pnpm dev",
     "start:service": "cd server && pnpm start:service",
     "start:admin": "cd server/admin && pnpm start",
-    "start:admin-next": "cd server/admin-next && pnpm start",
-    "build": "concurrently npm:build:web npm:build:server npm:build:admin && cp -r client/web/dist/* server/dist/public && cp -r client/web/dist/* server/dist/public",
+    "build": "concurrently npm:build:web npm:build:server npm:build:admin && cp -r client/web/dist/* server/dist/public",
     "build:web": "cd client/web && pnpm build",
-    "build:server": "cd server && pnpm build && echo \"Install server side plugin:\" && pnpm run plugin:install com.msgbyte.tasks com.msgbyte.linkmeta com.msgbyte.github com.msgbyte.simplenotify com.msgbyte.topic com.msgbyte.agora com.msgbyte.wxpusher com.msgbyte.welcome && mkdir -p ./dist/public && cp -r ./public/plugins ./dist/public && cp ./public/registry-be.json ./dist/public",
+    "build:server": "cd server && pnpm build && echo \"Install server side plugin:\" && pnpm run plugin:install com.msgbyte.tasks com.msgbyte.linkmeta com.msgbyte.github com.msgbyte.simplenotify com.msgbyte.topic com.msgbyte.agora com.msgbyte.wxpusher com.msgbyte.welcome com.msgbyte.iam com.msgbyte.discover com.msgbyte.livekit && mkdir -p ./dist/public && cp -r ./public/plugins ./dist/public && cp ./public/registry-be.json ./dist/public",
     "build:admin": "cd server/admin && pnpm build",
-    "build:admin-next": "cd server/admin-next && pnpm build",
     "check:type": "concurrently npm:check:type:client npm:check:type:server",
     "check:type:client": "cd client/web && tsc --noEmit",
     "check:type:server": "cd server && tsc --noEmit",
+    "publish:all": "pnpm -r publish --registry=https://registry.npmjs.com/",
     "website": "cd website && pnpm dev",
     "preinstall": "npx only-allow pnpm",
     "lint:fix": "eslint --fix './**/*.{ts,tsx}'",
@@ -58,22 +57,40 @@
     "lodash": "^4.17.21"
   },
   "pnpm": {
+    "peerDependencyRules": {
+      "ignoreMissing": [
+        "acorn",
+        "ts-jest",
+        "@typegoose/typegoose",
+        "moleculer"
+      ]
+    },
     "overrides": {
       "redux": "4.2.1",
       "@babel/runtime": "7.21.0",
       "@types/react": "18.0.20",
+      "@types/node": "18.11.9",
+      "ts-node": "10.9.1",
       "webpack": "5.75.0",
       "react-router@^6.0.0": "6.11.0",
       "react-router-dom@^6.0.0": "6.11.0",
       "@typegoose/typegoose": "9.3.1",
+      "@tanstack/query-async-storage-persister": "4.32.6",
+      "@tanstack/react-query": "4.33.0",
+      "@tanstack/react-query-persist-client": "4.33.0",
+      "@tanstack/react-query-devtools": "4.33.0",
+      "typescript": "4.9.4",
+      "got": "11.8.3",
+      "zustand": "4.3.6",
+      "immer": "9.0.21",
       "mongodb": "4.2.1",
       "mongoose@~6.0.14": "6.1.1",
       "mongoose@^6.0.0": "6.1.1",
       "mongoose-findorcreate": "3.0.0"
     },
     "patchedDependencies": {
-      "moleculer-minio@2.0.0": "patches/moleculer-minio@2.0.0.patch",
-      "moleculer@0.14.23": "patches/moleculer@0.14.23.patch"
+      "moleculer@0.14.23": "patches/moleculer@0.14.23.patch",
+      "vite-express@0.8.0": "patches/vite-express@0.8.0.patch"
     }
   }
 }

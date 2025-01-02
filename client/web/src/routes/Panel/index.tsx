@@ -8,6 +8,8 @@ import { GroupPanelRoute } from '../Main/Content/Group/Panel';
 import { GroupDetail } from '@/components/modals/GroupDetail';
 import { useParams } from 'react-router';
 import { NotFound } from '@/components/NotFound';
+import { Group } from '../Main/Content/Group';
+import { pluginPanelRoute } from '@/plugin/common';
 
 const GroupDetailRoute = React.memo(() => {
   const { groupId } = useParams<{ groupId: string }>();
@@ -35,6 +37,22 @@ const PanelRoute: React.FC = React.memo(() => {
           <Route
             path="/group/:groupId/:panelId"
             element={<GroupPanelRoute />}
+          />
+          <Route path="/group/main/:groupId/*" element={<Group />} />
+
+          <Route
+            path="/plugin/*"
+            element={
+              <Routes>
+                {pluginPanelRoute.map((r, i) => (
+                  <Route
+                    key={r.name}
+                    path={r.path ?? `/fallback${i}`}
+                    element={React.createElement(r.component)}
+                  />
+                ))}
+              </Routes>
+            }
           />
 
           <Route path="/*" element={t('未知的面板')} />

@@ -1,8 +1,10 @@
 import type { PluginCustomPanel } from '@/plugin/common';
 import clsx from 'clsx';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Icon } from 'tailchat-design';
 import { NavbarNavItem } from './NavItem';
+
+const defaultUseIsShow = () => true;
 
 /**
  * 导航栏自定义选项
@@ -10,8 +12,18 @@ import { NavbarNavItem } from './NavItem';
  */
 export const NavbarCustomNavItem: React.FC<{
   panelInfo: PluginCustomPanel;
+  /**
+   * 是否包含背景
+   */
   withBg: boolean;
 }> = React.memo(({ panelInfo, withBg }) => {
+  const useIsShow = useMemo(() => panelInfo.useIsShow ?? defaultUseIsShow, []);
+  const isShow = useIsShow();
+
+  if (!isShow) {
+    return null;
+  }
+
   return (
     <NavbarNavItem
       key={panelInfo.name}
