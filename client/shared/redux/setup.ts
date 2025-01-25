@@ -9,22 +9,16 @@ import {
 import type { FriendRequest } from '../model/friend';
 import { getCachedConverseInfo } from '../cache/cache';
 import type { GroupInfo } from '../model/group';
-import {
-  ChatMessage,
-  ChatMessageReaction,
-  fetchConverseLastMessages,
-} from '../model/message';
+import type { ChatMessage, ChatMessageReaction } from '../model/message';
 import { socketEventListeners } from '../manager/socket';
 import { showToasts } from '../manager/ui';
 import { t } from '../i18n';
-import {
-  ChatConverseInfo,
-  ChatConverseType,
-  fetchUserAck,
-} from '../model/converse';
+import { ChatConverseInfo, ChatConverseType } from '../model/converse';
 import { appendUserDMConverse } from '../model/user';
 import { sharedEvent } from '../event';
 import type { InboxItem } from '../model/inbox';
+import { useGlobalConfigStore } from '../store/globalConfig';
+import type { GlobalConfig } from '../model/config';
 
 /**
  * 初始化 Redux 上下文
@@ -59,7 +53,7 @@ function initial(socket: AppSocket, store: AppStore) {
   console.log('初始化Redux上下文...');
 
   // 立即请求加入房间
-  const conversesP = socket
+  socket
     .request<{
       dmConverseIds: string[];
       groupIds: string[];
@@ -75,34 +69,12 @@ function initial(socket: AppSocket, store: AppStore) {
       throw new Error('findAndJoinRoom failed');
     });
 
-  Promise.all([conversesP, fetchUserAck()]).then(
-    ([{ dmConverseIds, textPanelIds }, acks]) => {
-      /**
-       * TODO: 这里的逻辑还需要优化
-       * 可能ack和lastMessageMap可以无关？
-       */
-
-      // 设置已读消息
-      acks.forEach((ackInfo) => {
-        store.dispatch(
-          chatActions.setConverseAck({
-            converseId: ackInfo.converseId,
-            lastMessageId: ackInfo.lastMessageId,
-          })
-        );
-      });
-
-      const converseIds = [...dmConverseIds, ...textPanelIds];
-      fetchConverseLastMessages(converseIds).then((list) => {
-        store.dispatch(chatActions.setLastMessageMap(list));
-      });
-    }
-  );
-
   // 获取好友列表
-  socket.request<string[]>('friend.getAllFriends').then((data) => {
-    store.dispatch(userActions.setFriendList(data));
-  });
+  socket
+    .request<{ id: string; nickname?: string }[]>('friend.getAllFriends')
+    .then((data) => {
+      store.dispatch(userActions.setFriendList(data));
+    });
 
   // 获取好友邀请列表
   socket.request<FriendRequest[]>('friend.request.allRelated').then((data) => {
@@ -144,7 +116,7 @@ function listenNotify(socket: AppSocket, store: AppStore) {
       console.error('错误的信息', userId);
       return;
     }
-    store.dispatch(userActions.appendFriend(userId));
+    store.dispatch(userActions.appendFriend({ id: userId }));
   });
 
   socket.listen<FriendRequest>('friend.request.add', (request) => {
@@ -180,7 +152,9 @@ function listenNotify(socket: AppSocket, store: AppStore) {
       // 如果会话没有加载, 但是是私信消息
       // 则获取会话信息后添加到会话消息中
       getCachedConverseInfo(converseId).then((converse) => {
-        if (converse.type === ChatConverseType.DM) {
+        if (
+          [ChatConverseType.DM, ChatConverseType.Multi].includes(converse.type)
+        ) {
           // 如果是私人会话, 则添加到dmlist
           appendUserDMConverse(converse._id);
         }
@@ -282,6 +256,16 @@ function listenNotify(socket: AppSocket, store: AppStore) {
       store.dispatch(chatActions.setInboxList(list));
     });
   });
+
+  socket.listen(
+    'config.updateClientConfig',
+    (config: Partial<GlobalConfig>) => {
+      useGlobalConfigStore.setState((state) => ({
+        ...state,
+        ...config,
+      }));
+    }
+  );
 
   // 其他的额外的通知
   socketEventListeners.forEach(({ eventName, eventFn }) => {

@@ -78,6 +78,26 @@ export class GroupPanel {
    */
   @prop()
   meta?: object;
+
+  /**
+   * 身份组或者用户的权限
+   * 如果没有设定则应用群组权限
+   *
+   * key 为身份组id或者用户id
+   * value 为权限字符串列表
+   */
+  @prop()
+  permissionMap?: Record<string, string[]>;
+
+  /**
+   * 所有人的权限列表
+   * 如果没有设定则应用群组权限
+   */
+  @prop({
+    type: () => String,
+    default: () => [],
+  })
+  fallbackPermissions?: string[];
 }
 
 /**
@@ -122,6 +142,11 @@ export class Group extends TimeStamps implements Base {
   })
   owner: Ref<User>;
 
+  @prop({
+    maxlength: 120,
+  })
+  description?: string;
+
   @prop({ type: () => GroupMember, _id: false })
   members: GroupMember[];
 
@@ -132,7 +157,7 @@ export class Group extends TimeStamps implements Base {
     type: () => GroupRole,
     default: [],
   })
-  roles?: GroupRole[];
+  roles: GroupRole[];
 
   /**
    * 所有人的权限列表
@@ -290,7 +315,7 @@ export class Group extends TimeStamps implements Base {
 
     const allRoles = member.roles;
     const allRolesPermission = allRoles.map((roleName) => {
-      const p = group.roles.find((r) => r.name === roleName);
+      const p = group.roles.find((r) => String(r._id) === roleName);
 
       return p?.permissions ?? [];
     });
@@ -315,6 +340,43 @@ export class Group extends TimeStamps implements Base {
   }
 
   /**
+   * 检查群组字段操作权限，如果没有权限会直接抛出异常
+   */
+  static async checkGroupFieldPermission<
+    K extends keyof Pick<GroupMember, 'roles' | 'muteUntil'>
+  >(
+    this: ReturnModelType<typeof Group>,
+    ctx: TcContext,
+    groupId: string,
+    fieldName: K
+  ) {
+    const userId = ctx.meta.userId;
+    const t = ctx.meta.t;
+
+    if (fieldName === 'roles') {
+      // 检查操作用户是否有管理角色的权限
+      const [hasRolePermission] = await call(ctx).checkUserPermissions(
+        groupId,
+        userId,
+        [PERMISSION.core.manageRoles]
+      );
+      if (!hasRolePermission) {
+        throw new NoPermissionError(t('没有操作角色权限'));
+      }
+    } else {
+      // 检查操作用户是否有管理用户权限
+      const [hasUserPermission] = await call(ctx).checkUserPermissions(
+        groupId,
+        userId,
+        [PERMISSION.core.manageUser]
+      );
+      if (!hasUserPermission) {
+        throw new NoPermissionError(t('没有操作用户权限'));
+      }
+    }
+  }
+
+  /**
    * 修改群组成员的字段信息
    *
    * 带权限验证
@@ -327,33 +389,12 @@ export class Group extends TimeStamps implements Base {
     groupId: string,
     memberId: string,
     fieldName: K,
-    fieldValue: GroupMember[K] | ((member: GroupMember) => void),
-    operatorUserId: string
+    fieldValue: GroupMember[K] | ((member: GroupMember) => void)
   ): Promise<Group> {
     const group = await this.findById(groupId);
     const t = ctx.meta.t;
 
-    if (fieldName === 'roles') {
-      // 检查操作用户是否有管理角色的权限
-      const [hasRolePermission] = await call(ctx).checkUserPermissions(
-        groupId,
-        operatorUserId,
-        [PERMISSION.core.manageRoles]
-      );
-      if (!hasRolePermission) {
-        throw new NoPermissionError(t('没有操作角色权限'));
-      }
-    } else {
-      // 检查操作用户是否有管理用户权限
-      const [hasUserPermission] = await call(ctx).checkUserPermissions(
-        groupId,
-        operatorUserId,
-        [PERMISSION.core.manageUser]
-      );
-      if (!hasUserPermission) {
-        throw new NoPermissionError(t('没有操作用户权限'));
-      }
-    }
+    await this.checkGroupFieldPermission(ctx, groupId, fieldName);
 
     const member = group.members.find((m) => String(m.userId) === memberId);
     if (!member) {

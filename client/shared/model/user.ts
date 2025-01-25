@@ -2,23 +2,19 @@ import { request } from '../api/request';
 import { buildCachedRequest } from '../cache/utils';
 import { sharedEvent } from '../event';
 import { SYSTEM_USERID } from '../utils/consts';
-import { createAutoMergedRequest } from '../utils/request';
+import {
+  createAutoMergedRequest,
+  createAutoSplitRequest,
+} from '../utils/request';
 import _pick from 'lodash/pick';
 import _uniq from 'lodash/uniq';
 import _flatten from 'lodash/flatten';
 import _zipObject from 'lodash/zipObject';
 import { t } from '../i18n';
+import type { UserBaseInfo } from 'tailchat-types';
+import { isObjectId } from '../utils/string-helper';
 
-export interface UserBaseInfo {
-  _id: string;
-  email: string;
-  nickname: string;
-  discriminator: string;
-  avatar: string | null;
-  temporary: boolean;
-  emailVerified: boolean;
-  extra?: Record<string, unknown>;
-}
+export type { UserBaseInfo };
 
 export interface UserLoginInfo extends UserBaseInfo {
   token: string;
@@ -37,6 +33,16 @@ export interface UserSettings {
   messageNotificationMuteList?: string[];
 
   /**
+   * 群组排序, 内容为群组id
+   */
+  groupOrderList?: string[];
+
+  /**
+   * 是否关闭消息右键菜单
+   */
+  disableMessageContextMenu?: boolean;
+
+  /**
    * 其他的设置项
    */
   [key: string]: any;
@@ -50,7 +56,9 @@ export function pickUserBaseInfo(userInfo: UserLoginInfo): UserBaseInfo {
     'discriminator',
     'avatar',
     'temporary',
+    'type',
     'emailVerified',
+    'banned',
   ]);
 }
 
@@ -63,7 +71,21 @@ const builtinUserInfo: Record<string, () => UserBaseInfo> = {
     discriminator: '0000',
     avatar: null,
     temporary: false,
+    type: 'normalUser',
     emailVerified: false,
+    banned: false,
+  }),
+  '': () => ({
+    // dummy
+    _id: '',
+    email: '',
+    nickname: '',
+    discriminator: '0000',
+    avatar: null,
+    temporary: false,
+    type: 'normalUser',
+    emailVerified: false,
+    banned: false,
   }),
 };
 
@@ -139,13 +161,20 @@ export async function verifyEmailWithOTP(
  * @param email 邮箱
  * @param password 密码
  */
-export async function registerWithEmail(
-  email: string,
-  password: string,
-  emailOTP?: string
-): Promise<UserLoginInfo> {
+export async function registerWithEmail({
+  email,
+  password,
+  nickname,
+  emailOTP,
+}: {
+  email: string;
+  password: string;
+  nickname?: string;
+  emailOTP?: string;
+}): Promise<UserLoginInfo> {
   const { data } = await request.post('/api/user/register', {
     email,
+    nickname,
     password,
     emailOTP,
   });
@@ -240,14 +269,18 @@ export async function searchUserWithUniqueName(
 }
 
 const _fetchUserInfo = createAutoMergedRequest<string, UserBaseInfo>(
-  async (userIds) => {
-    // 这里用post是为了防止一次性获取的userId过多超过url限制
-    const { data } = await request.post('/api/user/getUserInfoList', {
-      userIds,
-    });
+  createAutoSplitRequest(
+    async (userIds) => {
+      // 这里用post是为了防止一次性获取的userId过多超过url限制
+      const { data } = await request.post('/api/user/getUserInfoList', {
+        userIds,
+      });
 
-    return data;
-  }
+      return data;
+    },
+    'serial',
+    1000
+  )
 );
 /**
  * 获取用户基本信息
@@ -261,27 +294,36 @@ export async function fetchUserInfo(userId: string): Promise<UserBaseInfo> {
     return builtinUserInfo[userId]();
   }
 
+  if (!isObjectId(userId)) {
+    throw new Error(`Invalid userId: ${userId}`);
+  }
+
   const userInfo = await _fetchUserInfo(userId);
 
   return userInfo;
 }
 
 const _fetchUserOnlineStatus = createAutoMergedRequest<string[], boolean[]>(
-  async (userIdsList) => {
-    const uniqList = _uniq(_flatten(userIdsList));
-    // 这里用post是为了防止一次性获取的userId过多超过url限制
-    const { data } = await request.post('/api/gateway/checkUserOnline', {
-      userIds: uniqList,
-    });
+  createAutoSplitRequest(
+    async (userIdsList) => {
+      const uniqList = _uniq(_flatten(userIdsList));
+      // 这里用post是为了防止一次性获取的userId过多超过url限制
+      const { data } = await request.post('/api/gateway/checkUserOnline', {
+        userIds: uniqList,
+      });
 
-    const map = _zipObject<boolean>(uniqList, data);
+      const map = _zipObject<boolean>(uniqList, data);
 
-    // 将请求结果根据传输来源重新分组
-    return userIdsList.map((userIds) =>
-      userIds.map((userId) => map[userId] ?? false)
-    );
-  }
+      // 将请求结果根据传输来源重新分组
+      return userIdsList.map((userIds) =>
+        userIds.map((userId) => map[userId] ?? false)
+      );
+    },
+    'serial',
+    1000
+  )
 );
+
 /**
  * 获取用户在线状态
  */
@@ -300,6 +342,22 @@ export async function appendUserDMConverse(
 ): Promise<UserDMList> {
   const { data } = await request.post<UserDMList>(
     '/api/user/dmlist/addConverse',
+    {
+      converseId,
+    }
+  );
+
+  return data;
+}
+
+/**
+ * 移除会话列表
+ */
+export async function removeUserDMConverse(
+  converseId: string
+): Promise<UserDMList> {
+  const { data } = await request.post<UserDMList>(
+    '/api/user/dmlist/removeConverse',
     {
       converseId,
     }

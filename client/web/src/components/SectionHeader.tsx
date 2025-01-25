@@ -19,7 +19,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = React.memo(
             className="overflow-hidden"
             onOpenChange={setVisible}
             menu={props.menu}
-            placement="topRight"
+            placement="bottomRight"
             trigger={['click']}
           >
             <div
@@ -39,7 +39,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = React.memo(
           </Dropdown>
         ) : (
           <header
-            className="flex-1 truncate px-4"
+            className="flex-1 truncate px-4 select-text"
             data-testid={props['data-testid']}
           >
             {props.children}

@@ -18,6 +18,8 @@ import { checkPathMatch } from '../../lib/utils';
 import serve from 'serve-static';
 import accepts from 'accepts';
 import send from 'send';
+import path from 'path';
+import mime from 'mime';
 
 export default class ApiService extends TcService {
   authWhitelist = [];
@@ -40,6 +42,7 @@ export default class ApiService extends TcService {
 
           return user;
         },
+        disableMsgpack: config.feature.disableMsgpack,
       })
     );
     this.registerMixin(TcHealth());
@@ -79,7 +82,7 @@ export default class ApiService extends TcService {
     //   window: 60 * 1000,
 
     //   // Max number of requests during window. Defaults to 30
-    //   limit: 30,
+    //   limit: 60,
 
     //   // Set rate limit headers to response. Defaults to false
     //   headers: true,
@@ -289,6 +292,15 @@ export default class ApiService extends TcService {
                   parentCtx: _.get(req, '$ctx'),
                 }
               );
+
+              const ext = path.extname(objectName);
+              if (ext) {
+                res.setHeader('Content-Type', mime.getType(ext));
+              }
+
+              // 因为对象存储的对象名都是以文件内容hash存储的，因此过期时间可以设置很大
+              res.setHeader('Cache-Control', 'public, max-age=315360000'); // 10 years => 60 * 60 * 24 * 365 * 10
+
               result.pipe(res);
             } catch (err) {
               this.logger.error(err);
@@ -306,6 +318,8 @@ export default class ApiService extends TcService {
         authorization: false,
         use: [
           serve('public', {
+            cacheControl: true,
+            maxAge: '1d', // 1 day for public file, include plugins
             setHeaders(res: ServerResponse, path: string, stat: any) {
               res.setHeader('Access-Control-Allow-Origin', '*'); // 允许跨域
             },

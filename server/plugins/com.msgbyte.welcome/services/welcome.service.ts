@@ -12,7 +12,7 @@ class WelcomeService extends TcService {
   }
 
   onInit() {
-    this.registryAfterActionHook('group.joinGroup', 'joinGroupCallback'); // not work
+    this.registerAfterActionHook('group.joinGroup', 'joinGroupCallback');
 
     this.registerAction('joinGroupCallback', this.joinGroupCallback, {
       params: {
@@ -31,7 +31,7 @@ class WelcomeService extends TcService {
 
     const groupInfo = await call(ctx).getGroupInfo(groupId);
 
-    if (groupInfo.config['plugin:groupWelcomeText']) {
+    if (groupInfo.config && groupInfo.config['plugin:groupWelcomeText']) {
       // 有欢迎词
 
       const lobbyConverseId = await call(ctx).getGroupLobbyConverseId(groupId);

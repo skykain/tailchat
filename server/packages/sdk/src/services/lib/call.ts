@@ -5,6 +5,7 @@ import {
   PERMISSION,
   TcPureContext,
 } from '../../index';
+import type { ChatConverseStruct } from '../../structs/chat';
 
 export function call(ctx: TcPureContext) {
   return {
@@ -16,6 +17,22 @@ export function call(ctx: TcPureContext) {
         roomIds,
         userId,
       });
+    },
+    /**
+     * 离开socketio房间
+     */
+    async leaveSocketIORoom(roomIds: string[], userId?: string) {
+      await ctx.call('gateway.leaveRoom', {
+        roomIds,
+        userId,
+      });
+    },
+
+    /**
+     * 检查用户是否在线
+     */
+    async isUserOnline(userIds: string[]): Promise<boolean[]> {
+      return await ctx.call('gateway.checkUserOnline', { userIds });
     },
     /**
      * 发送系统消息
@@ -87,6 +104,16 @@ export function call(ctx: TcPureContext) {
     async getUserInfo(userId: string): Promise<UserStruct | null> {
       return await ctx.call('user.getUserInfo', {
         userId: String(userId),
+      });
+    },
+    /**
+     * 获取会话信息
+     */
+    async getConverseInfo(
+      converseId: string
+    ): Promise<ChatConverseStruct | null> {
+      return await ctx.call('chat.converse.findConverseInfo', {
+        converseId,
       });
     },
     /**

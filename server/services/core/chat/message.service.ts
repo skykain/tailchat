@@ -13,9 +13,12 @@ import {
   NoPermissionError,
   call,
   PERMISSION,
+  NotFoundError,
+  SYSTEM_USERID,
 } from 'tailchat-server-sdk';
 import type { Group } from '../../../models/group/group';
 import { isValidStr } from '../../../lib/utils';
+import _ from 'lodash';
 
 interface MessageService
   extends TcService,
@@ -36,6 +39,7 @@ class MessageService extends TcService {
     });
     this.registerAction('fetchNearbyMessage', this.fetchNearbyMessage, {
       params: {
+        groupId: { type: 'string', optional: true },
         converseId: 'string',
         messageId: 'string',
         num: { type: 'number', optional: true },
@@ -55,9 +59,21 @@ class MessageService extends TcService {
         messageId: 'string',
       },
     });
+    this.registerAction('getMessage', this.getMessage, {
+      params: {
+        messageId: 'string',
+      },
+    });
     this.registerAction('deleteMessage', this.deleteMessage, {
       params: {
         messageId: 'string',
+      },
+    });
+    this.registerAction('searchMessage', this.searchMessage, {
+      params: {
+        groupId: { type: 'string', optional: true },
+        converseId: 'string',
+        text: 'string',
       },
     });
     this.registerAction(
@@ -109,13 +125,18 @@ class MessageService extends TcService {
    */
   async fetchNearbyMessage(
     ctx: TcContext<{
+      groupId?: string;
       converseId: string;
       messageId: string;
       num?: number;
     }>
   ) {
-    const { converseId, messageId, num = 5 } = ctx.params;
+    const { groupId, converseId, messageId, num = 5 } = ctx.params;
     const { t } = ctx.meta;
+
+    // 鉴权是否能获取到会话内容
+    await this.checkConversePermission(ctx, converseId, groupId);
+
     const message = await this.adapter.model
       .findOne({
         _id: new Types.ObjectId(messageId),
@@ -172,19 +193,18 @@ class MessageService extends TcService {
     const { converseId, groupId, content, plain, meta } = ctx.params;
     const userId = ctx.meta.userId;
     const t = ctx.meta.t;
+    const isGroupMessage = isValidStr(groupId);
 
     /**
      * 鉴权
      */
-    if (isValidStr(groupId)) {
-      // 是群组消息
-      const groupInfo: Group = await ctx.call('group.getGroupInfo', {
-        groupId,
-      });
+    await this.checkConversePermission(ctx, converseId, groupId); // 鉴权是否能获取到会话内容
+    if (isGroupMessage) {
+      // 是群组消息, 鉴权是否禁言
+      const groupInfo = await call(ctx).getGroupInfo(groupId);
       const member = groupInfo.members.find((m) => String(m.userId) === userId);
       if (member) {
         // 因为有机器人，所以如果没有在成员列表中找到不报错
-
         if (new Date(member.muteUntil).valueOf() > new Date().valueOf()) {
           throw new Error(t('您因为被禁言无法发送消息'));
         }
@@ -202,11 +222,44 @@ class MessageService extends TcService {
 
     const json = await this.transformDocuments(ctx, {}, message);
 
-    this.roomcastNotify(ctx, converseId, 'add', json);
+    if (isGroupMessage) {
+      this.roomcastNotify(ctx, converseId, 'add', json);
+    } else {
+      // 如果是私信的话需要基于用户去推送
+      // 因为用户可能不订阅消息(删除了dmlist)
+      const converseInfo = await call(ctx).getConverseInfo(converseId);
+      if (converseInfo) {
+        const converseMemberIds = converseInfo.members.map((m) => String(m));
+
+        call(ctx)
+          .isUserOnline(converseMemberIds)
+          .then((onlineList) => {
+            _.zip(converseMemberIds, onlineList).forEach(
+              ([memberId, isOnline]) => {
+                if (isOnline) {
+                  // 用户在线，则直接推送，通过客户端来创建会话
+                  this.unicastNotify(ctx, memberId, 'add', json);
+                } else {
+                  // 用户离线，确保追加到会话中
+                  ctx.call(
+                    'user.dmlist.addConverse',
+                    { converseId },
+                    {
+                      meta: {
+                        userId: memberId,
+                      },
+                    }
+                  );
+                }
+              }
+            );
+          });
+      }
+    }
 
     ctx.emit('chat.message.updateMessage', {
       type: 'add',
-      groupId: String(groupId),
+      groupId: groupId ? String(groupId) : undefined,
       converseId: String(converseId),
       messageId: String(message._id),
       author: userId,
@@ -275,13 +328,42 @@ class MessageService extends TcService {
     this.roomcastNotify(ctx, converseId, 'update', json);
     ctx.emit('chat.message.updateMessage', {
       type: 'recall',
-      groupId: String(groupId),
+      groupId: groupId ? String(groupId) : undefined,
       converseId: String(converseId),
       messageId: String(message._id),
       meta: message.meta ?? {},
     });
 
     return json;
+  }
+
+  /**
+   * 获取消息
+   */
+  async getMessage(ctx: TcContext<{ messageId: string }>) {
+    const { messageId } = ctx.params;
+    const { t, userId } = ctx.meta;
+    const message = await this.adapter.model.findById(messageId);
+    if (!message) {
+      throw new DataNotFoundError(t('该消息未找到'));
+    }
+    const converseId = String(message.converseId);
+    const groupId = message.groupId;
+    // 鉴权
+    if (!groupId) {
+      // 私人会话
+      const converseInfo = await call(ctx).getConverseInfo(converseId);
+      if (!converseInfo.members.map((m) => String(m)).includes(userId)) {
+        throw new NoPermissionError(t('没有当前会话权限'));
+      }
+    } else {
+      // 群组会话
+      const groupInfo = await call(ctx).getGroupInfo(String(groupId));
+      if (!groupInfo.members.map((m) => m.userId).includes(userId)) {
+        throw new NoPermissionError(t('没有当前会话权限'));
+      }
+    }
+    return message;
   }
 
   /**
@@ -297,34 +379,76 @@ class MessageService extends TcService {
       throw new DataNotFoundError(t('该消息未找到'));
     }
 
+    const converseId = String(message.converseId);
     const groupId = message.groupId;
     if (!groupId) {
-      throw new Error(t('无法删除私人信息'));
+      // 私人会话
+      if (userId !== SYSTEM_USERID) {
+        // 如果是私人发起的, 则直接抛出异常
+        throw new Error(t('无法删除私人信息'));
+      }
+    } else {
+      // 群组会话, 进行权限校验
+      const [hasPermission] = await call(ctx).checkUserPermissions(
+        String(groupId),
+        userId,
+        [PERMISSION.core.deleteMessage]
+      );
+
+      if (!hasPermission) {
+        throw new NoPermissionError(t('没有删除权限')); // 仅管理员允许删除
+      }
     }
 
-    const [hasPermission] = await call(ctx).checkUserPermissions(
-      String(groupId),
-      userId,
-      [PERMISSION.core.deleteMessage]
-    );
-
-    if (!hasPermission) {
-      throw new NoPermissionError(t('没有删除权限')); // 仅管理员允许删除
-    }
-
-    const converseId = String(message.converseId);
     await this.adapter.removeById(messageId); // TODO: 考虑是否要改为软删除
 
     this.roomcastNotify(ctx, converseId, 'delete', { converseId, messageId });
     ctx.emit('chat.message.updateMessage', {
       type: 'delete',
-      groupId: String(groupId),
+      groupId: groupId ? String(groupId) : undefined,
       converseId: String(converseId),
       messageId: String(message._id),
       meta: message.meta ?? {},
     });
 
     return true;
+  }
+
+  /**
+   * 搜索消息
+   */
+  async searchMessage(
+    ctx: TcContext<{ groupId?: string; converseId: string; text: string }>
+  ) {
+    const { groupId, converseId, text } = ctx.params;
+    const userId = ctx.meta.userId;
+    const t = ctx.meta.t;
+
+    if (groupId) {
+      const groupInfo = await call(ctx).getGroupInfo(groupId);
+      if (!groupInfo.members.map((m) => m.userId).includes(userId)) {
+        throw new Error(t('不是群组成员无法搜索消息'));
+      }
+    }
+
+    const messages = this.adapter.model
+      .find({
+        groupId: groupId ?? null,
+        converseId,
+        content: {
+          $regex: text,
+        },
+        author: {
+          $not: {
+            $eq: SYSTEM_USERID,
+          },
+        },
+      })
+      .sort({ _id: -1 })
+      .limit(10)
+      .maxTimeMS(5 * 1000); // 超过5s的查询直接放弃
+
+    return messages;
   }
 
   /**
@@ -355,10 +479,14 @@ class MessageService extends TcService {
       })
     );
 
-    return list.filter(Boolean).map((item) => ({
-      converseId: String(item.converseId),
-      lastMessageId: String(item._id),
-    }));
+    return list.map((item) =>
+      item
+        ? {
+            converseId: String(item.converseId),
+            lastMessageId: String(item._id),
+          }
+        : null
+    );
   }
 
   async addReaction(
@@ -441,6 +569,55 @@ class MessageService extends TcService {
     });
 
     return true;
+  }
+
+  /**
+   * 校验会话权限，如果没有抛出异常则视为正常
+   */
+  private async checkConversePermission(
+    ctx: TcContext,
+    converseId: string,
+    groupId?: string
+  ) {
+    const userId = ctx.meta.userId;
+    const t = ctx.meta.t;
+    if (userId === SYSTEM_USERID) {
+      return;
+    }
+
+    const userInfo = await call(ctx).getUserInfo(userId); // TODO: 可以通过在默认的meta信息中追加用户类型来减少一次请求来优化
+    if (userInfo.type === 'pluginBot') {
+      // 如果是插件机器人则拥有所有权限(开放平台机器人需要添加到群组才有会话权限)
+      return;
+    }
+
+    // 鉴权是否能获取到会话内容
+    if (groupId) {
+      // 是群组
+      const group = await call(ctx).getGroupInfo(groupId);
+      if (group.members.findIndex((m) => String(m.userId) === userId) === -1) {
+        // 不存在该用户
+        throw new NoPermissionError(t('没有当前会话权限'));
+      }
+    } else {
+      // 是普通会话
+      const converse = await ctx.call<
+        any,
+        {
+          converseId: string;
+        }
+      >('chat.converse.findConverseInfo', {
+        converseId,
+      });
+
+      if (!converse) {
+        throw new NotFoundError(t('没有找到会话信息'));
+      }
+      const memebers = converse.members ?? [];
+      if (memebers.findIndex((member) => String(member) === userId) === -1) {
+        throw new NoPermissionError(t('没有当前会话权限'));
+      }
+    }
   }
 }
 

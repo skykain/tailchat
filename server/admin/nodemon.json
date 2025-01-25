@@ -1,7 +1,7 @@
 {
   "verbose": true,
-  "watch": ["./server.ts", "./app/server/*"],
+  "watch": ["./src/server"],
   "ext": "ts",
   "delay": 1000,
-  "exec": "ts-node ./server.ts"
+  "exec": "ts-node ./src/server/index.ts"
 }

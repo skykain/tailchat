@@ -62,6 +62,8 @@ function createRequest() {
         errorMsg = t('请求参数校验失败');
 
         if (Array.isArray(responseData.data)) {
+          console.error(JSON.stringify(responseData.data));
+
           try {
             errorMsg += `: ${responseData.data
               .map((item: any) => item.field)
@@ -70,11 +72,12 @@ function createRequest() {
         }
       }
 
+      // comment it logic because if not throw error, react query will cache `{ data: { result: false, msg: errorMsg, code } }` and has some problem
       if (_isFunction(getErrorHook)) {
         const isContinue = getErrorHook(err);
-        if (isContinue === false) {
-          return { data: { result: false, msg: errorMsg, code } };
-        }
+        // if (isContinue === false) {
+        //   return { data: { result: false, msg: errorMsg, code } };
+        // }
       }
 
       throw new RequestError(errorMsg ?? err.message);

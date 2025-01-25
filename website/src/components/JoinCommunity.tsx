@@ -1,5 +1,5 @@
 import React from 'react';
-import { inviteLink } from '../utils/consts';
+import { discordLink, inviteLink } from '../utils/consts';
 import Link from '@docusaurus/Link';
 import Translate from '@docusaurus/Translate';
 import './JoinCommunity.less';
@@ -16,19 +16,36 @@ export const JoinCommunity: React.FC = React.memo(() => {
           product support, and more.
         </Translate>
       </p>
-      <Link
-        className="button button--primary button--lg umami--click--joingroup"
-        href={inviteLink}
-      >
-        <Translate>Join Our Group</Translate>
-      </Link>
+
+      <div>
+        <Link
+          className="button button--primary button--lg"
+          href={inviteLink}
+          data-umami-event="joingroup"
+          data-tianji-event="joingroup"
+        >
+          <Translate>Join Tailchat Group</Translate>
+        </Link>
+      </div>
+
+      <div>
+        <Link
+          className="button button--primary button--lg"
+          href={discordLink}
+          data-umami-event="joindiscord"
+          data-tianji-event="joindiscord"
+        >
+          <Translate>Join Discord</Translate>
+        </Link>
+      </div>
 
       <div className="producthunt">
         <a
           href="https://www.producthunt.com/posts/tailchat?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-tailchat"
           target="_blank"
           rel="noreferrer"
-          className="umami--click--producthunt"
+          data-umami-event="producthunt"
+          data-tianji-event="producthunt"
         >
           <img
             src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=382080&theme=light"

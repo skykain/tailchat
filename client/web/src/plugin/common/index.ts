@@ -20,11 +20,14 @@ export {
   openReconfirmModal,
 } from '@/components/Modal';
 export { Loadable } from '@/components/Loadable';
+export { useIsMobile } from '@/hooks/useIsMobile';
+export { isMobile } from '@/utils/device-helper';
+export { getPopupContainer } from '@/utils/dom-helper';
 export {
   getGlobalState,
   useGlobalSocketEvent,
 } from '@/utils/global-state-helper';
-export { getJWTUserInfo } from '@/utils/jwt-helper';
+export { setUserJWT, getJWTUserInfo } from '@/utils/jwt-helper';
 export { dataUrlToFile } from '@/utils/file-helper';
 export {
   urlSearchStringify,
@@ -32,6 +35,8 @@ export {
   appendUrlSearch,
 } from '@/utils/url-helper';
 export { getServiceWorkerRegistration } from '@/utils/sw-helper';
+export { postMessageEvent } from '@/utils/event-helper';
+export { panelWindowManager } from '@/utils/window-helper';
 import {
   /**
    * 注意: Tailchat 内部的request不会被导出为插件可用模块，如果需要网络请求的话请自行import axios(以作为复用依赖)
@@ -59,14 +64,22 @@ export {
   showToasts,
   showSuccessToasts,
   showErrorToasts,
+  showNotification,
   fetchAvailableServices,
   isValidStr,
+  useGroupInfo,
   useGroupPanelInfo,
   sendMessage,
   showMessageTime,
   joinArray,
   useConverseMessageContext,
+  loginWithToken,
+  useWatch,
+  parseUrlStr,
+  useUpdateRef,
+  isDevelopment,
 } from 'tailchat-shared';
+export { setWebviewKernel, resetWebviewKernel } from '@/components/Webview';
 
 export { navigate } from '@/components/AppRouterApi';
 export { useLocation, useNavigate } from 'react-router';
@@ -80,6 +93,7 @@ export {
    * @deprecated please use metaFormFieldSchema from @capital/component
    */
   metaFormFieldSchema as fieldSchema,
+  getTextColorHex,
 } from 'tailchat-design';
 
 /**
@@ -88,7 +102,13 @@ export {
 export function useCurrentUserInfo() {
   const userInfo = useUserInfo();
 
-  return _pick(userInfo, ['email', 'nickname', 'discriminator', 'avatar']);
+  return _pick(userInfo, [
+    '_id',
+    'email',
+    'nickname',
+    'discriminator',
+    'avatar',
+  ]);
 }
 
 /**

@@ -56,7 +56,7 @@ const plugins: Configuration['plugins'] = [
     'process.env.VERSION': JSON.stringify(VERSION),
   }),
   new HtmlWebpackPlugin({
-    inject: true,
+    inject: 'body',
     hash: false,
     favicon: path.resolve(ROOT_PATH, './assets/images/favicon.ico'),
     template: path.resolve(ROOT_PATH, './assets/template.html'),
@@ -81,12 +81,24 @@ const plugins: Configuration['plugins'] = [
         to: 'pwa.webmanifest',
       },
       {
+        from: path.resolve(ROOT_PATH, './assets/robots.txt'),
+        to: 'robots.txt',
+      },
+      {
+        from: path.resolve(ROOT_PATH, './assets/_redirects'),
+        to: './', // for netlify
+      },
+      {
         from: path.resolve(ROOT_PATH, './assets/images/logo/'),
         to: 'images/logo/',
       },
       {
         from: path.resolve(ROOT_PATH, './assets/images/avatar/'),
         to: 'images/avatar/',
+      },
+      {
+        from: path.resolve(ROOT_PATH, './assets/audio/'),
+        to: 'audio/',
       },
       {
         from: path.resolve(ROOT_PATH, '../../vercel.json'),

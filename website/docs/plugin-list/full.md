@@ -1,6 +1,6 @@
 ---
 sidebar_position: 3
-title: Backend plugins (7)
+title: Backend plugins (12)
 ---
 
 ### com.msgbyte.agora Agora
@@ -11,6 +11,14 @@ Add the Agora audio and video communication feature to Tailchat
 - [manifest.json](https://github.com/msgbyte/tailchat/blob/master/server/plugins/com.msgbyte.agora/web/plugins/com.msgbyte.agora/manifest.json)
 
 
+### com.msgbyte.discover Discover
+
+Add Discover panel which can help user found groups
+
+- [Source Code](https://github.com/msgbyte/tailchat/blob/master/server/plugins/com.msgbyte.discover/web/plugins/com.msgbyte.discover)
+- [manifest.json](https://github.com/msgbyte/tailchat/blob/master/server/plugins/com.msgbyte.discover/web/plugins/com.msgbyte.discover/manifest.json)
+
+
 ### com.msgbyte.github Github Subscription
 
 Subscribe to the Github project dynamics to the group
@@ -19,12 +27,28 @@ Subscribe to the Github project dynamics to the group
 - [manifest.json](https://github.com/msgbyte/tailchat/blob/master/server/plugins/com.msgbyte.github/web/plugins/com.msgbyte.github/manifest.json)
 
 
+### com.msgbyte.iam Identity and Access Management
+
+Provide Tailchat with the function of conveniently accessing external account systems
+
+- [Source Code](https://github.com/msgbyte/tailchat/blob/master/server/plugins/com.msgbyte.iam/web/plugins/com.msgbyte.iam)
+- [manifest.json](https://github.com/msgbyte/tailchat/blob/master/server/plugins/com.msgbyte.iam/web/plugins/com.msgbyte.iam/manifest.json)
+
+
 ### com.msgbyte.linkmeta Url metadata display
 
 Parse and get the overview of url information in the chat information, such as title/overview/thumbnail, support media path, directly display media player (specially support bilibili, automatically load the iframe player of bilibili)
 
 - [Source Code](https://github.com/msgbyte/tailchat/blob/master/server/plugins/com.msgbyte.linkmeta/web/plugins/com.msgbyte.linkmeta)
 - [manifest.json](https://github.com/msgbyte/tailchat/blob/master/server/plugins/com.msgbyte.linkmeta/web/plugins/com.msgbyte.linkmeta/manifest.json)
+
+
+### com.msgbyte.livekit livekit
+
+Add livekit to provide meeting and live streaming feature
+
+- [Source Code](https://github.com/msgbyte/tailchat/blob/master/server/plugins/com.msgbyte.livekit/web/plugins/com.msgbyte.livekit)
+- [manifest.json](https://github.com/msgbyte/tailchat/blob/master/server/plugins/com.msgbyte.livekit/web/plugins/com.msgbyte.livekit/manifest.json)
 
 
 ### com.msgbyte.meeting Audio and video service (WIP)
@@ -57,4 +81,20 @@ Provide topic feature for groups
 
 - [Source Code](https://github.com/msgbyte/tailchat/blob/master/server/plugins/com.msgbyte.topic/web/plugins/com.msgbyte.topic)
 - [manifest.json](https://github.com/msgbyte/tailchat/blob/master/server/plugins/com.msgbyte.topic/web/plugins/com.msgbyte.topic/manifest.json)
+
+
+### com.msgbyte.welcome Group Welcome
+
+Send a welcome message when joining a group
+
+- [Source Code](https://github.com/msgbyte/tailchat/blob/master/server/plugins/com.msgbyte.welcome/web/plugins/com.msgbyte.welcome)
+- [manifest.json](https://github.com/msgbyte/tailchat/blob/master/server/plugins/com.msgbyte.welcome/web/plugins/com.msgbyte.welcome/manifest.json)
+
+
+### com.msgbyte.wxpusher wxpusher
+
+Add support for wxpusher to notify user
+
+- [Source Code](https://github.com/msgbyte/tailchat/blob/master/server/plugins/com.msgbyte.wxpusher/web/plugins/com.msgbyte.wxpusher)
+- [manifest.json](https://github.com/msgbyte/tailchat/blob/master/server/plugins/com.msgbyte.wxpusher/web/plugins/com.msgbyte.wxpusher/manifest.json)
 

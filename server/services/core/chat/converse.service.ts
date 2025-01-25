@@ -7,6 +7,8 @@ import {
   UserStruct,
   call,
   DataNotFoundError,
+  NoPermissionError,
+  SYSTEM_USERID,
 } from 'tailchat-server-sdk';
 import type {
   ConverseDocument,
@@ -53,16 +55,33 @@ class ConverseService extends TcService {
   async createDMConverse(ctx: TcContext<{ memberIds: string[] }>) {
     const userId = ctx.meta.userId;
     const memberIds = ctx.params.memberIds;
+    const t = ctx.meta.t;
 
     const participantList = _.uniq([userId, ...memberIds]);
 
-    let converse = await this.adapter.model.findConverseWithMembers(
-      participantList
-    );
-    if (converse === null) {
-      // 创建新的会话
-      converse = await this.adapter.insert({
-        type: 'DM',
+    if (participantList.length < 2) {
+      throw new Error(t('成员数异常，无法创建会话'));
+    }
+
+    let converse: ConverseDocument;
+    if (participantList.length === 2) {
+      // 私信会话
+      converse = await this.adapter.model.findConverseWithMembers(
+        participantList
+      );
+      if (converse === null) {
+        // 创建新的会话
+        converse = await this.adapter.model.create({
+          type: 'DM',
+          members: participantList.map((id) => new Types.ObjectId(id)),
+        });
+      }
+    }
+
+    if (participantList.length > 2) {
+      // 多人会话
+      converse = await this.adapter.model.create({
+        type: 'Multi',
         members: participantList.map((id) => new Types.ObjectId(id)),
       });
     }
@@ -105,13 +124,14 @@ class ConverseService extends TcService {
       // 如果创建的是一个多人会话(非双人), 发送系统消息
       await Promise.all(
         _.without(participantList, userId).map<Promise<UserStruct>>(
-          (memberId) => ctx.call('user.getUserInfo', { userId: memberId })
+          (memberId) => call(ctx).getUserInfo(memberId)
         )
       ).then((infoList) => {
         return call(ctx).sendSystemMessage(
-          `${ctx.meta.user.nickname} 邀请 ${infoList
-            .map((info) => info.nickname)
-            .join(', ')} 加入会话`,
+          t('{{user}} 邀请 {{others}} 加入会话', {
+            user: ctx.meta.user.nickname,
+            others: infoList.map((info) => info.nickname).join(', '),
+          }),
           roomId
         );
       });
@@ -205,9 +225,12 @@ class ConverseService extends TcService {
 
     const converse = await this.adapter.findById(converseId);
 
-    const memebers = converse.members ?? [];
-    if (!memebers.map((member) => String(member)).includes(userId)) {
-      throw new Error(t('没有获取会话信息权限'));
+    if (userId !== SYSTEM_USERID) {
+      // not system, check permission
+      const memebers = converse.members ?? [];
+      if (!memebers.map((member) => String(member)).includes(userId)) {
+        throw new NoPermissionError(t('没有获取会话信息权限'));
+      }
     }
 
     return await this.transformDocuments(ctx, {}, converse);

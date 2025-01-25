@@ -7,7 +7,7 @@ class TcError extends ExtendableError {
   public retryable: boolean;
 
   constructor(message?: string, code?: number, type?: string, data?: unknown) {
-    super(message ?? '服务器出错');
+    super(message ?? 'Service Unavailable');
     this.code = code ?? this.code ?? 500;
     this.type = type ?? this.type;
     this.data = data ?? this.data;
@@ -17,7 +17,7 @@ class TcError extends ExtendableError {
 
 export class DataNotFoundError extends TcError {
   constructor(message?: string, code?: number, type?: string, data?: unknown) {
-    super(message ?? '找不到数据', code ?? 404, type, data);
+    super(message ?? 'Not found Data', code ?? 404, type, data);
   }
 }
 
@@ -28,18 +28,35 @@ export class EntityError extends TcError {
     type?: string,
     data?: { field: string; message: string }[]
   ) {
-    super(message ?? '表单不正确', code ?? 442, type, data);
+    super(message ?? 'Form error', code ?? 442, type, data);
   }
 }
 
 export class NoPermissionError extends TcError {
   constructor(message?: string, code?: number, type?: string, data?: unknown) {
-    super(message ?? '没有操作权限', code ?? 403, type, data);
+    super(message ?? 'No operate permission', code ?? 403, type, data);
+  }
+}
+
+export class BannedError extends TcError {
+  constructor(message?: string, code?: number, type?: string, data?: unknown) {
+    super(
+      message ?? 'You has been banned',
+      code ?? 403,
+      type ?? 'banned',
+      data
+    );
   }
 }
 
 export class ServiceUnavailableError extends TcError {
   constructor(data?: unknown) {
     super('Service unavailable', 503, 'SERVICE_NOT_AVAILABLE', data);
+  }
+}
+
+export class NotFoundError extends TcError {
+  constructor(data?: unknown) {
+    super('Not found', 404, 'NOT_FOUND', data);
   }
 }

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { ForwardRefExoticComponent, useMemo } from 'react';
 import { Avatar as AntdAvatar, Badge } from 'antd';
 import _head from 'lodash/head';
 import _upperCase from 'lodash/upperCase';
@@ -17,7 +17,8 @@ export interface AvatarProps extends AntdAvatarProps {
   name?: string;
   isOnline?: boolean;
 }
-export const Avatar: React.FC<AvatarProps> = React.memo((_props) => {
+
+const _Avatar: React.FC<AvatarProps> = React.memo((_props) => {
   const { isOnline, ...props } = _props;
   const src = isValidStr(props.src) ? imageUrlParser(props.src) : undefined;
 
@@ -32,32 +33,42 @@ export const Avatar: React.FC<AvatarProps> = React.memo((_props) => {
     [src, props.icon, props.name]
   );
 
-  const style: React.CSSProperties = useMemo(
-    () => ({
+  const style = useMemo(() => {
+    const _style: React.CSSProperties = {
       userSelect: 'none',
       ...props.style,
       backgroundColor: color,
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
-    }),
-    [props.style, color]
-  );
+    };
 
-  if (_isNumber(props.size)) {
-    // 为了支持rem统一管理宽度，将size转换为样式宽度(size类型上不支持rem单位)
-    style.width = px2rem(props.size);
-    style.height = px2rem(props.size);
+    if (_isNumber(props.size)) {
+      // 为了支持rem统一管理宽度，将size转换为样式宽度(size类型上不支持rem单位)
+      if (!_style.width) {
+        _style.width = px2rem(props.size);
+      }
+      if (!_style.height) {
+        _style.height = px2rem(props.size);
+      }
 
-    if (typeof style.fontSize === 'undefined') {
-      // 如果props.size是数字且没有指定文字大小
-      // 则自动增加fontSize大小
-      style.fontSize = px2rem(props.size * 0.4);
+      if (typeof _style.fontSize === 'undefined') {
+        // 如果props.size是数字且没有指定文字大小
+        // 则自动增加fontSize大小
+        _style.fontSize = px2rem(props.size * 0.4);
+      }
     }
-  }
+
+    return _style;
+  }, [props.style, props.size, color]);
 
   const inner = (
-    <AntdAvatar {..._omit(props, ['size'])} src={src} style={style}>
+    <AntdAvatar
+      draggable={false}
+      {..._omit(props, ['size'])}
+      src={src}
+      style={style}
+    >
       {name}
     </AntdAvatar>
   );
@@ -85,4 +96,11 @@ export const Avatar: React.FC<AvatarProps> = React.memo((_props) => {
 
   return inner;
 });
-Avatar.displayName = 'Avatar';
+_Avatar.displayName = 'Avatar';
+
+type CompoundedComponent = ForwardRefExoticComponent<AvatarProps> & {
+  Group: typeof AntdAvatar.Group;
+};
+
+export const Avatar: CompoundedComponent = _Avatar as any;
+Avatar.Group = AntdAvatar.Group;
