@@ -3,12 +3,12 @@ import path from 'path';
 import axios from 'axios';
 import fs from 'fs-extra';
 const app = express();
-const port = 8080;
+const port = process.env.PORT || 8080;
 
-const API = process.env.API || 'http://localhost:11001';
+const API = process.env.API || 'https://tailchat-nightly.moonrailgun.com'; // dev environment is 'http://localhost:11001'
 const clientUrl = `http://localhost:${port}`;
-const clientId = process.env.ID || 'tc_61f5270008e0635f67868f01';
-const clientSecret = process.env.SECRET || 'PDnLVsNnFyqWRS0QXYeaHDlE8KwgQLqv';
+const clientId = process.env.ID || 'tc_649aa2179e97b8b3b2d1004f';
+const clientSecret = process.env.SECRET || '4Pt4lccOaztJROs-VhmQf8XBU89-z8rr';
 
 console.log('config:', {
   API,
@@ -54,7 +54,6 @@ app.get('/cb', async (req, res, next) => {
 
     // 根据获取到的code获取授权码
     const { data: tokenInfo } = await request.post('/open/token', {
-      // client_id: 'foo',
       client_id: clientId,
       client_secret: clientSecret,
       redirect_uri: `${clientUrl}/cb`,
@@ -80,6 +79,8 @@ app.get('/cb', async (req, res, next) => {
 });
 
 app.listen(port, () => {
-  console.log(`请确保回调已经被注册在OIDC服务端的白名单中: ${clientUrl}/cb`);
-  console.log(`测试服务地址: http://127.0.0.1:${port}`);
+  console.log(
+    `Please ensure that the third-party login function is enabled and the callback has been registered in the whitelist of the OIDC server: ${clientUrl}/cb`
+  );
+  console.log(`Test Server Address: http://127.0.0.1:${port}`);
 });

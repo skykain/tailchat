@@ -6,11 +6,11 @@ import {
   config,
   TcDbService,
   NoPermissionError,
+  TcMinioService,
 } from 'tailchat-server-sdk';
-import MinioService from 'moleculer-minio';
 import _ from 'lodash';
 import mime from 'mime';
-import type { Client as MinioClient } from 'minio';
+import type { BucketItemStat, Client as MinioClient } from 'minio';
 import { isValidStaticAssetsUrl, isValidStr } from '../../lib/utils';
 import path from 'node:path';
 import type { FileDocument, FileModel } from '../../models/file';
@@ -34,16 +34,17 @@ class FileService extends TcService {
 
   onInit(): void {
     this.registerLocalDb(require('../../models/file').default);
-    this.registerMixin(MinioService);
+    this.registerMixin(TcMinioService);
     const minioUrl = config.storage.minioUrl;
     const [endPoint, port] = minioUrl.split(':');
 
     // https://github.com/designtesbrot/moleculer-minio#settings
     this.registerSetting('endPoint', endPoint);
     this.registerSetting('port', Number(port));
-    this.registerSetting('useSSL', false);
+    this.registerSetting('useSSL', config.storage.ssl);
     this.registerSetting('accessKey', config.storage.user);
     this.registerSetting('secretKey', config.storage.pass);
+    this.registerSetting('pathStyle', config.storage.pathStyle);
 
     this.registerAction('save', this.save);
     this.registerAction('saveFileWithUrl', this.saveFileWithUrl, {
@@ -57,6 +58,19 @@ class FileService extends TcService {
         objectName: 'string',
       },
       disableSocket: true,
+    });
+    this.registerAction('stat', this.stat, {
+      params: {
+        objectName: 'string',
+      },
+      disableSocket: true,
+    });
+    this.registerAction('delete', this.delete, {
+      params: {
+        objectName: 'string',
+      },
+      disableSocket: true,
+      visibility: 'public',
     });
   }
 
@@ -98,6 +112,7 @@ class FileService extends TcService {
     ctx: TcContext<
       {},
       {
+        $multipart: any;
         $params: any;
         filename: any;
       }
@@ -115,6 +130,7 @@ class FileService extends TcService {
       }
 
       const originFilename = String(ctx.meta.filename);
+      const usage = _.get(ctx, 'meta.$multipart.usage', 'unknown');
 
       const stream = ctx.params as NodeJS.ReadableStream;
       (stream as any).on('error', (err) => {
@@ -128,7 +144,8 @@ class FileService extends TcService {
         const { etag, objectName, url } = await this.saveFileStream(
           ctx,
           originFilename,
-          stream
+          stream,
+          usage
         );
 
         resolve({
@@ -197,7 +214,8 @@ class FileService extends TcService {
   async saveFileStream(
     ctx: TcContext,
     filename: string,
-    fileStream: NodeJS.ReadableStream
+    fileStream: NodeJS.ReadableStream,
+    usage = 'unknown'
   ): Promise<{ etag: string; url: string; objectName: string }> {
     const span = ctx.startSpan('file.saveFileStream');
     const ext = path.extname(filename);
@@ -220,7 +238,8 @@ class FileService extends TcService {
       ctx,
       tmpObjectName,
       etag,
-      ext
+      ext,
+      usage
     );
 
     span.finish();
@@ -239,7 +258,8 @@ class FileService extends TcService {
     ctx: TcContext,
     tmpObjectName: string,
     etag: string,
-    ext: string
+    ext: string,
+    usage = 'unknown'
   ): Promise<{
     url: string;
     objectName: string;
@@ -274,15 +294,23 @@ class FileService extends TcService {
     this.minioClient
       .statObject(this.bucketName, objectName)
       .then((stat) =>
-        this.adapter.insert({
-          etag,
-          userId: new Types.ObjectId(userId),
-          bucketName: this.bucketName,
-          objectName,
-          url,
-          size: stat.size,
-          metaData: stat.metaData,
-        })
+        this.adapter.model.updateOne(
+          {
+            bucketName: this.bucketName,
+            objectName,
+          },
+          {
+            etag,
+            userId: new Types.ObjectId(userId),
+            url,
+            size: stat.size,
+            metaData: stat.metaData,
+            usage,
+          },
+          {
+            upsert: true,
+          }
+        )
       )
       .catch((err) => {
         this.logger.error(`持久化到数据库失败: ${objectName}`, err);
@@ -306,17 +334,63 @@ class FileService extends TcService {
   ) {
     const objectName = ctx.params.objectName;
 
-    const stream = await this.actions['getObject'](
-      {
-        bucketName: this.bucketName,
-        objectName,
-      },
-      {
-        parentCtx: ctx,
-      }
+    const stream = await this.minioClient.getObject(
+      this.bucketName,
+      objectName
     );
 
+    this.adapter.model
+      .updateOne(
+        {
+          bucketName: this.bucketName,
+          objectName,
+        },
+        {
+          $inc: {
+            views: 1,
+          },
+        }
+      )
+      .catch(() => {});
+
     return stream;
+  }
+
+  /**
+   * 获取客户端的信息
+   */
+  async stat(
+    ctx: PureContext<{
+      objectName: string;
+    }>
+  ): Promise<BucketItemStat> {
+    const objectName = ctx.params.objectName;
+
+    const stat = await this.minioClient.statObject(this.bucketName, objectName);
+
+    return stat;
+  }
+
+  /**
+   * 删除文件
+   */
+  async delete(
+    ctx: TcContext<{
+      objectName: string;
+    }>
+  ) {
+    const objectName = ctx.params.objectName;
+
+    try {
+      // 先删文件再删记录，确保文件被删除
+      await this.minioClient.removeObject(this.bucketName, objectName);
+      await this.adapter.model.deleteMany({
+        bucketName: this.bucketName,
+        objectName,
+      });
+    } catch (err) {
+      this.logger.warn('Delete file error:', objectName, err);
+    }
   }
 
   private randomName() {

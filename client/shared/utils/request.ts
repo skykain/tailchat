@@ -1,3 +1,6 @@
+import _chunk from 'lodash/chunk';
+import _flatten from 'lodash/flatten';
+
 interface QueueItem<T, R> {
   params: T;
   resolve: (r: R) => void;
@@ -21,10 +24,9 @@ export function createAutoMergedRequest<T, R>(
     timer = null; // 清空计时器以接受后续请求
     const _queue = [...queue];
     queue = []; // 清空队列
-    const ret = fn(_queue.map((q) => q.params));
 
     try {
-      const list = await ret;
+      const list = await fn(_queue.map((q) => q.params));
       _queue.forEach((q1, i) => {
         q1.resolve(list[i]);
       });
@@ -50,5 +52,38 @@ export function createAutoMergedRequest<T, R>(
         reject,
       });
     });
+  };
+}
+
+/**
+ * 创建一个自动拆分请求参数的函数
+ */
+export function createAutoSplitRequest<Key, Item>(
+  fn: (keys: Key[]) => Promise<Item[]>,
+  type: 'serial' | 'parallel',
+  limit = 100
+): (arr: Key[]) => Promise<Item[]> {
+  return async (arr: Key[]): Promise<Item[]> => {
+    const groups = _chunk(arr, limit);
+
+    if (type === 'serial') {
+      const list: Item[] = [];
+      for (const group of groups) {
+        const res = await fn(group);
+        if (Array.isArray(res)) {
+          list.push(...res);
+        } else {
+          console.warn('[createAutoSplitRequest] fn should be return array');
+        }
+      }
+
+      return list;
+    } else if (type === 'parallel') {
+      const res = await Promise.all(groups.map((group) => fn(group)));
+
+      return _flatten(res);
+    }
+
+    return [];
   };
 }

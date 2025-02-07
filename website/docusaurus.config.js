@@ -95,10 +95,11 @@ const presetClassicOptions = {
   docs: {
     sidebarPath: require.resolve('./sidebars.js'),
     // Please change this to your repo.
-    editUrl: 'https://github.com/msgbyte/tailchat-website/edit/master/website/',
+    editUrl: 'https://github.com/msgbyte/tailchat/edit/master/website/',
   },
   blog: {
     postsPerPage: 5,
+    blogSidebarCount: 'ALL',
   },
   // blog: false,
   theme: {
@@ -129,10 +130,10 @@ module.exports = {
   ],
   scripts: [
     {
-      src: 'https://umami.moonrailgun.com/umami.js',
+      src: 'https://tianji.moonrailgun.com/tracker.js',
       async: true,
       defer: true,
-      'data-website-id': '22f7ff7b-db54-4222-b123-c8e3acfbf1aa',
+      'data-website-id': 'clo189w7r0003o65exm2pvdnp',
     },
   ],
 };

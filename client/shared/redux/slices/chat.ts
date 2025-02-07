@@ -1,14 +1,19 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { ChatConverseInfo } from '../../model/converse';
-import type { ChatMessage, ChatMessageReaction } from '../../model/message';
+import type {
+  ChatMessage,
+  ChatMessageReaction,
+  LocalChatMessage,
+  SendMessagePayload,
+} from '../../model/message';
 import _uniqBy from 'lodash/uniqBy';
 import _orderBy from 'lodash/orderBy';
 import _last from 'lodash/last';
-import { isValidStr } from '../../utils/string-helper';
+import { isLocalMessageId, isValidStr } from '../../utils/string-helper';
 import type { InboxItem } from '../../model/inbox';
 
 export interface ChatConverseState extends ChatConverseInfo {
-  messages: ChatMessage[];
+  messages: LocalChatMessage[];
   hasFetchedHistory: boolean;
   /**
    * 判定是否还有更多的信息
@@ -80,6 +85,7 @@ const chatSlice = createSlice({
         return;
       }
 
+      // NOTICE: 按照该规则能确保本地消息一直在最后，因为l大于任何ObjectId
       const newMessages = _orderBy(
         _uniqBy([...state.converses[converseId].messages, ...messages], '_id'),
         '_id',
@@ -88,12 +94,57 @@ const chatSlice = createSlice({
 
       state.converses[converseId].messages = newMessages;
 
+      /**
+       * 如果在当前会话中，则暂时不更新最后收到的消息的本地状态，避免可能出现的瞬间更新最后消息(出现小红点) 但是会立即已读（小红点消失）
+       * 所以仅对非当前会话的消息进行更新最后消息
+       */
       if (state.currentConverseId !== converseId) {
-        const lastMessageId = _last(newMessages)?._id;
+        const lastMessageId = _last(
+          newMessages.filter((m) => !isLocalMessageId(m._id))
+        )?._id;
         if (isValidStr(lastMessageId)) {
           state.lastMessageMap[converseId] = lastMessageId;
         }
       }
+    },
+
+    /**
+     * 追加本地消息消息
+     */
+    appendLocalMessage(
+      state,
+      action: PayloadAction<{
+        author?: string;
+        localMessageId: string;
+        payload: SendMessagePayload;
+      }>
+    ) {
+      const { author, localMessageId, payload } = action.payload;
+      const { converseId, groupId, content, meta } = payload;
+
+      if (!state.converses[converseId]) {
+        // 没有会话信息, 请先设置会话信息
+        console.error('没有会话信息, 请先设置会话信息');
+        return;
+      }
+
+      const message: LocalChatMessage = {
+        _id: localMessageId,
+        author,
+        groupId,
+        converseId,
+        content,
+        meta: meta as Record<string, unknown>,
+        isLocal: true,
+      };
+
+      const newMessages = _orderBy(
+        _uniqBy([...state.converses[converseId].messages, message], '_id'),
+        '_id',
+        'asc'
+      );
+
+      state.converses[converseId].messages = newMessages;
     },
 
     /**
@@ -159,6 +210,16 @@ const chatSlice = createSlice({
       state.converses[converseId].hasFetchedHistory = true;
     },
 
+    removeConverse(state, action: PayloadAction<{ converseId: string }>) {
+      const { converseId } = action.payload;
+
+      if (!state.converses[converseId]) {
+        return;
+      }
+
+      delete state.converses[converseId];
+    },
+
     /**
      * 清理所有会话信息
      */
@@ -186,18 +247,25 @@ const chatSlice = createSlice({
     updateMessageInfo(
       state,
       action: PayloadAction<{
-        message: ChatMessage;
+        messageId?: string;
+        message: Partial<LocalChatMessage>;
       }>
     ) {
       const { message } = action.payload;
+      const messageId = action.payload.messageId ?? message._id;
       const converseId = message.converseId;
+      if (!converseId) {
+        console.warn('Not found converse id,', message);
+        return;
+      }
+
       const converse = state.converses[converseId];
       if (!converse) {
         console.warn('Not found converse,', converseId);
         return;
       }
 
-      const index = converse.messages.findIndex((m) => m._id === message._id);
+      const index = converse.messages.findIndex((m) => m._id === messageId);
       if (index >= 0) {
         converse.messages[index] = {
           ...converse.messages[index],

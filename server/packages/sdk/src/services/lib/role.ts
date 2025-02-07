@@ -7,7 +7,9 @@ export const PERMISSION = {
     message: 'core.message',
     invite: 'core.invite',
     unlimitedInvite: 'core.unlimitedInvite',
+    editInvite: 'core.editInvite', // 编辑邀请码权限，需要有创建无限制邀请码的权限
     groupDetail: 'core.groupDetail',
+    groupBaseInfo: 'core.groupBaseInfo',
     groupConfig: 'core.groupConfig',
     manageUser: 'core.manageUser',
     managePanel: 'core.managePanel',

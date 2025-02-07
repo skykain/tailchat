@@ -13,6 +13,11 @@ regGroupPanel({
       name: 'url',
       label: Translate.website,
     },
+    {
+      type: 'checkbox',
+      name: 'background',
+      label: Translate.addBackground,
+    },
   ],
   render: Loadable(() => import('./group/GroupWebPanelRender')),
   menus: [
@@ -33,15 +38,7 @@ regGroupPanel({
   name: `${PLUGIN_NAME}/customwebpanel`,
   label: Translate.customwebpanel,
   provider: PLUGIN_NAME,
-  extraFormMeta: [
-    {
-      type: 'textarea',
-      name: 'html',
-      label: Translate.htmlcode,
-      placeholder: Translate.customwebpanelPlaceholder,
-    },
-  ],
   render: Loadable(() => import('./group/GroupCustomWebPanelRender'), {
-    componentName: 'com.msgbyte.webview:GroupCustomWebPanelRender',
+    componentName: `${PLUGIN_NAME}:GroupCustomWebPanelRender`,
   }),
 });

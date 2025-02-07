@@ -1,5 +1,735 @@
 
 
+## [1.11.10](https://github.com/msgbyte/tailchat/compare/v1.11.9...v1.11.10) (2025-01-02)
+
+
+### Bug Fixes
+
+* disable support html tag in markdown ([8e593f7](https://github.com/msgbyte/tailchat/commit/8e593f720009de8c8a0402cac8854a7b9c957fcd))
+
+
+### Features
+
+* add file upload in chat usage ([52f70c8](https://github.com/msgbyte/tailchat/commit/52f70c89d5324ccd27640385862a1963e7bafb41))
+* add filter for usage in admin ([d72f878](https://github.com/msgbyte/tailchat/commit/d72f8783526c512234fbe10ea42f42c027d3d198))
+* add rehype-sanitize to protect markdown html from xss ([0e17991](https://github.com/msgbyte/tailchat/commit/0e17991d4f77b26e75974170d1478274984b946d))
+
+## [1.11.9](https://github.com/msgbyte/tailchat/compare/v1.11.8...v1.11.9) (2024-11-23)
+
+
+### Bug Fixes
+
+* fix xss problem when render iframe ([c1365f2](https://github.com/msgbyte/tailchat/commit/c1365f2b82b3bd6d71b5da7e8aac06faf7c99d44))
+* not allow svg ([f74647f](https://github.com/msgbyte/tailchat/commit/f74647fb307c1ccca272dfd4badf61e3fb5f7697))
+* only allow http link in iframe render ([9a327dc](https://github.com/msgbyte/tailchat/commit/9a327dca14b5629731a1f2c847595dc90c4fe594))
+
+## [1.11.8](https://github.com/msgbyte/tailchat/compare/v1.11.7...v1.11.8) (2024-10-28)
+
+
+### Bug Fixes
+
+* fix a issue which markdown component can render meta tag problem ([9998c57](https://github.com/msgbyte/tailchat/commit/9998c57358b31b85bfec5955bcf852e12afe6bfd))
+
+
+### Features
+
+* add DISABLE_TRACING env which useful save logs ([55e4f38](https://github.com/msgbyte/tailchat/commit/55e4f3835085b2efe94e177c80c5ceefa030fa95))
+* markdown disable iframe auto play ([16086d1](https://github.com/msgbyte/tailchat/commit/16086d1b77dd158f0ccbd5f4803384b96c676e12))
+
+
+### Performance Improvements
+
+* improve file table display in file table ([ab78309](https://github.com/msgbyte/tailchat/commit/ab7830999d000d68f37cee5ccbd36720bcf016ab))
+
+## [1.11.7](https://github.com/msgbyte/tailchat/compare/v1.11.6...v1.11.7) (2024-09-07)
+
+
+### Bug Fixes
+
+* [#252](https://github.com/msgbyte/tailchat/issues/252) disable support custom style in markdown render ([c33dbd2](https://github.com/msgbyte/tailchat/commit/c33dbd241c605b90f79837bc39fc1e7115cb3db5))
+* fix user info is null will crash list problem ([c43a99e](https://github.com/msgbyte/tailchat/commit/c43a99e12969f109876ad8f72dca219563990219))
+
+
+### Features
+
+* add DISABLE_INFO_LOG env ([5cc71d0](https://github.com/msgbyte/tailchat/commit/5cc71d02357c78cb4ac34b99f8dc376a3375fdfd))
+
+## [1.11.6](https://github.com/msgbyte/tailchat/compare/v1.11.5...v1.11.6) (2024-07-20)
+
+
+### Features
+
+* add file filter chat files checkbox(use for remove unused chat files) ([c4e70ef](https://github.com/msgbyte/tailchat/commit/c4e70efb61101ee6647bd4c4f4d7207f8400530a))
+* **admin:** add image url preview in admin ([3cea16e](https://github.com/msgbyte/tailchat/commit/3cea16ee601092dd45cc4361f94fd4ac6b85c8d5))
+
+
+### Performance Improvements
+
+* add virtual list for friend list [#238](https://github.com/msgbyte/tailchat/issues/238) ([f09f701](https://github.com/msgbyte/tailchat/commit/f09f7017bd3c06b7f5a99720d94e5dc932a2453f))
+* add virtual list of inbox list ([68ea354](https://github.com/msgbyte/tailchat/commit/68ea354e3cb726ee68600091b0600b05ec01a39d))
+
+## [1.11.5](https://github.com/msgbyte/tailchat/compare/v1.11.4...v1.11.5) (2024-06-04)
+
+
+### Bug Fixes
+
+* fix a problem which make disableMsgpack not work ([61184d1](https://github.com/msgbyte/tailchat/commit/61184d1e599495fa3374769a3140d02f5f0c61a0))
+
+## [1.11.4](https://github.com/msgbyte/tailchat/compare/v1.11.3...v1.11.4) (2024-06-02)
+
+
+### Bug Fixes
+
+* [#230](https://github.com/msgbyte/tailchat/issues/230) fix a bug which will occur error tip when invite a user into conversation ([3801bb2](https://github.com/msgbyte/tailchat/commit/3801bb20a8492449a15e54fb916da8078e79359a))
+* rename all disableSocketMsgpack to disableMsgpack ([7870c83](https://github.com/msgbyte/tailchat/commit/7870c835d7d31c976d9f05fa15ec81d2aa526075))
+
+## [1.11.3](https://github.com/msgbyte/tailchat/compare/v1.11.2...v1.11.3) (2024-05-11)
+
+
+### Bug Fixes
+
+* fix quick switcher layer problem and filter group panel type because should not direct open ([6dba794](https://github.com/msgbyte/tailchat/commit/6dba794198575952b3b88e1fbdd8fa3a0d05d07b))
+
+
+### Features
+
+* add chat.message.getMessage api ([#227](https://github.com/msgbyte/tailchat/issues/227)) ([34a380e](https://github.com/msgbyte/tailchat/commit/34a380eff546bff3540d6dcd059ed1f901370905))
+* add tianji script environment ([125df13](https://github.com/msgbyte/tailchat/commit/125df13976daec27a9df294e0b496093dc350235))
+
+## [1.11.2](https://github.com/msgbyte/tailchat/compare/v1.11.1...v1.11.2) (2024-05-05)
+
+
+### Bug Fixes
+
+* fix a problem which deleted conversation can not get name occur crash ([88b05da](https://github.com/msgbyte/tailchat/commit/88b05da0c97d3a43f00a8149ab085477f89a942c))
+* fix a problem which user info maybe return null cause error ([96d8cda](https://github.com/msgbyte/tailchat/commit/96d8cda5c3c1809d7319f395130ce8d62ee276b8))
+
+## [1.11.1](https://github.com/msgbyte/tailchat/compare/v1.11.0...v1.11.1) (2024-04-14)
+
+
+### Bug Fixes
+
+* fix command panel cannot click problem ([5c259d7](https://github.com/msgbyte/tailchat/commit/5c259d70049257fc516b08914144ff9d17cbe59c))
+* fix image message context menu cannot save image problem ([a3a442a](https://github.com/msgbyte/tailchat/commit/a3a442a34f1ea465fe8e91813f5be10e67b767be))
+* fix text cannot select part problem and url dont need context menu problem ([a02ad80](https://github.com/msgbyte/tailchat/commit/a02ad80bf177b1c6086e9c6150df744ba2027b84))
+
+
+### Features
+
+* add context menu into message item ([a36ca7c](https://github.com/msgbyte/tailchat/commit/a36ca7c4e1f20d6fa6eeb5eefbf1c05d50e8f8d1))
+* add setting for close message context menu ([0107edf](https://github.com/msgbyte/tailchat/commit/0107edfa0cbed744129237d0ea4bf18b5877f2bc))
+
+# [1.11.0](https://github.com/msgbyte/tailchat/compare/v1.10.1...v1.11.0) (2024-04-06)
+
+
+### Bug Fixes
+
+* fix error tip for user cannot add self as friend ([592e4ab](https://github.com/msgbyte/tailchat/commit/592e4ab8bd03f001737d7195759e533799bbd8df))
+* invalid user id will broken all userId info query problem ([de63b31](https://github.com/msgbyte/tailchat/commit/de63b312adf53d8dd9425b213736415be4314dfb))
+
+
+### Features
+
+* add group panel quick actions ([c451a09](https://github.com/msgbyte/tailchat/commit/c451a091c33a89da04e6013306efe554c2be3bc8))
+* add quick search button in navbar ([6b0fffb](https://github.com/msgbyte/tailchat/commit/6b0fffb0786a5eb83ef5cb26e748f3198e82194d))
+
+
+### Performance Improvements
+
+* improve mention list to make sure its will work fine in huge group ([d79a62b](https://github.com/msgbyte/tailchat/commit/d79a62bf455ce0aa268b8582438433eab4413b6d))
+
+## [1.10.1](https://github.com/msgbyte/tailchat/compare/v1.10.0...v1.10.1) (2024-03-17)
+
+
+### Bug Fixes
+
+* fix bbcode auto transform logic [#196](https://github.com/msgbyte/tailchat/issues/196) ([5f81459](https://github.com/msgbyte/tailchat/commit/5f814594e83ad4be825934b10734aabd825a13d6))
+* fix drag drop feature display area ([92fdccf](https://github.com/msgbyte/tailchat/commit/92fdccfe729b0840872ca97154be43c1a5ae8a3a))
+* fix mention list will not hide member discriminator problem ([d22eabe](https://github.com/msgbyte/tailchat/commit/d22eabeec78002997411ec51aca7943b45e9e879))
+
+
+### Features
+
+* add bot tag in group/dm user popover ([1359b6e](https://github.com/msgbyte/tailchat/commit/1359b6eee7fe122e53252c933132364a8c7068f6))
+* add robot to disable invite page fetch by search engine ([67f87e8](https://github.com/msgbyte/tailchat/commit/67f87e84e43d94e03f506770122f61ac3802d3e9))
+* allow @ feature in conversation [#212](https://github.com/msgbyte/tailchat/issues/212) ([3ee37d6](https://github.com/msgbyte/tailchat/commit/3ee37d6bdeb7fe480057470aaaa581ab76483d7b))
+
+
+### Performance Improvements
+
+* add friendly tip for add non-message feature bot ([53a05cb](https://github.com/msgbyte/tailchat/commit/53a05cb6bd0e9d5304666c7c6845f463c127d641))
+
+# [1.10.0](https://github.com/msgbyte/tailchat/compare/v1.9.5...v1.10.0) (2023-12-09)
+
+
+### Bug Fixes
+
+* cli smtp test command add close logic and add time in body ([7c8749b](https://github.com/msgbyte/tailchat/commit/7c8749bee7de66ef00f20cfdbf0400547900e2f0))
+* fix route disable if disable plugin store ([ad59c97](https://github.com/msgbyte/tailchat/commit/ad59c971d6e2dbb1c77bbf51418058270541b261))
+* fix the bug where the groupheader drop-down menu may expand upwards ([64c0977](https://github.com/msgbyte/tailchat/commit/64c097761a9efedc512be61f1627e535330f6377))
+* fix topic ack not work problem ([bf88662](https://github.com/msgbyte/tailchat/commit/bf886625a9a37d587e58ff9214cacd00babd2838))
+
+
+### Features
+
+* add agora plugin support webrtc permission request ([d290d94](https://github.com/msgbyte/tailchat/commit/d290d94597a681d8843bd91b2590de8ba73f1207))
+* add custom sidebar item ([e73046e](https://github.com/msgbyte/tailchat/commit/e73046e7d540da82eebb703919408225e129bbaa))
+* add debug script inject ([4eedaf8](https://github.com/msgbyte/tailchat/commit/4eedaf87daa1921198798e213a9e2d38167c3441))
+* add device helper for mobile in api ([09200ad](https://github.com/msgbyte/tailchat/commit/09200ad33909d48c31122b88825999e9b4245cbd))
+* add embeding meeting view in mobile when start meeting between conversation ([b97dddf](https://github.com/msgbyte/tailchat/commit/b97dddf60d0d5ffcb9bc0170d6bdb4526b9e18d5))
+* add permission to edit basic info and fixed the bug of incorrect display of group fields ([5d69b32](https://github.com/msgbyte/tailchat/commit/5d69b326b98a7ca7f79831116da99d53da0bf902))
+* add popconfirm for topic delete ([56e97fc](https://github.com/msgbyte/tailchat/commit/56e97fccd73267e4492a1398d4f8ecabd6b2ddf0))
+* add topic delete action ([e012c9e](https://github.com/msgbyte/tailchat/commit/e012c9e20b1c409d0c09fd0de947a43205153137))
+* **mobile:** add webrtc permission grant and allow webrtc service work correct ([3de7fe2](https://github.com/msgbyte/tailchat/commit/3de7fe2c69f4500ac684641b83e10176437a134c))
+
+
+### Performance Improvements
+
+* add audio preload for livekit invite call ([18ae4c4](https://github.com/msgbyte/tailchat/commit/18ae4c4aef7e35bff873e2ac6cc5691c8f910f10))
+* add dummy user to avoid unused user info request ([b2d5d06](https://github.com/msgbyte/tailchat/commit/b2d5d063d663b5b58dc5e4041ebaeae47a686c88))
+* hide mobile member button in livekit ([cc04c36](https://github.com/msgbyte/tailchat/commit/cc04c36a86f63331faaec89e197fe23486d992be))
+
+## [1.9.5](https://github.com/msgbyte/tailchat/compare/v1.9.4...v1.9.5) (2023-11-20)
+
+
+### Bug Fixes
+
+* add limit for emotion style to fix transparent panel ([766477a](https://github.com/msgbyte/tailchat/commit/766477ac171be5d1817c8a5beca6bb393d4f1208))
+* fix a bug ban user clean cache will be have a gap between userinfo and token cache [#179](https://github.com/msgbyte/tailchat/issues/179) ([7e239ea](https://github.com/msgbyte/tailchat/commit/7e239ead8675b46becf66222de396cbde06987bb))
+* fixed an issue where the inbox groupId was incorrect when replying in a private conversation ([5b16ff9](https://github.com/msgbyte/tailchat/commit/5b16ff90c9e481a4f463a7c0b928342a7fced6ec))
+
+
+### Features
+
+* add action inviteCall in livekit ([087713a](https://github.com/msgbyte/tailchat/commit/087713afbf4aae7c50c139871eae6ecabc16956c))
+* add dark theme support for notification ([aa43d04](https://github.com/msgbyte/tailchat/commit/aa43d0462bb954d54fe920819a3421ffcb78e6ed))
+* add env MINIO_SSL [#172](https://github.com/msgbyte/tailchat/issues/172) ([7be0489](https://github.com/msgbyte/tailchat/commit/7be0489542229bf5d2e202950720dbdb2b7403c9))
+* add fast change role group with group member right click menu manage [#171](https://github.com/msgbyte/tailchat/issues/171) ([ed3e9ca](https://github.com/msgbyte/tailchat/commit/ed3e9ca6d756fda56af6e4e3a18f54dee6786edf))
+* add invite call when start meeting from conversation ([8906b93](https://github.com/msgbyte/tailchat/commit/8906b933d7e0e50e487770da16f296f86636b8de))
+* add livekit call invite notication card and actions ([505c6c3](https://github.com/msgbyte/tailchat/commit/505c6c38eda3d180eb9086c6bc68f02b00301a8c))
+* add livekit meeting context and ([c937178](https://github.com/msgbyte/tailchat/commit/c937178956a119a618da103ce839ac11f78f84bf))
+* add livekit member panel ([19a1e5d](https://github.com/msgbyte/tailchat/commit/19a1e5dbe58346ec9dd7aaffe12cc413a08d7982))
+* add livekit panel for converse dm meeting ([0be2bf6](https://github.com/msgbyte/tailchat/commit/0be2bf6c470cb202acae90c4be3194d98b8549d4))
+* add ref to avoid send invite twice ([67b29ac](https://github.com/msgbyte/tailchat/commit/67b29ac26cac3fbe0512a189f2b5823104ccb9b3))
+* add search friend feature [#157](https://github.com/msgbyte/tailchat/issues/157) ([a7fe82e](https://github.com/msgbyte/tailchat/commit/a7fe82eff341e071597d24229f4fa6b2efae9223))
+* added reload button ([72a68d3](https://github.com/msgbyte/tailchat/commit/72a68d3bdef0726ffa24d3e534081b10fea3d78d))
+* web panel support add background color which useful for transparent background website ([5fe0ff0](https://github.com/msgbyte/tailchat/commit/5fe0ff06d7c9248f3769a9c3294f7485764e5b44))
+
+
+### Performance Improvements
+
+* **desktop:** improve server list manager logic ([3a6a729](https://github.com/msgbyte/tailchat/commit/3a6a729e1f17589edd63a7216a3258eed881b70c))
+
+## [1.9.4](https://github.com/msgbyte/tailchat/compare/v1.9.3...v1.9.4) (2023-11-06)
+
+## [1.9.3](https://github.com/msgbyte/tailchat/compare/v1.9.2...v1.9.3) (2023-11-06)
+
+
+### Bug Fixes
+
+* **desktop:** v0.0.8 fix ipc error problem with import data from other files ([2b329db](https://github.com/msgbyte/tailchat/commit/2b329db0170025e68be1d54de1200a4263e6e4e7))
+* fix iam plugin not fit in light theme in login view ([86ed84a](https://github.com/msgbyte/tailchat/commit/86ed84a83deec6a162101fc7f4c490714bffcd5a))
+* update inject script exec order ([5274d2a](https://github.com/msgbyte/tailchat/commit/5274d2a7b942469998ec4f38834aa021cb05b1d0))
+
+
+### Features
+
+* add env REQUEST_TIMEOUT to custom requestTimeout of actions ([d678d0a](https://github.com/msgbyte/tailchat/commit/d678d0a839568f72f8f69e7a001ace7732cc1415))
+* add http cache for static and public files ([eae8d35](https://github.com/msgbyte/tailchat/commit/eae8d350537c8d4bcd2e82e71021abe5edfdecab))
+* add more tip in ai-assistant plugin ([caad90c](https://github.com/msgbyte/tailchat/commit/caad90cd478c2192bb86f2073fb9f6f282321a42))
+* add telemetry to aware of the presence of other deployment instances ([c25d3a0](https://github.com/msgbyte/tailchat/commit/c25d3a0b46bd7ec8a3321cd72e7ee7360a218bff))
+* add text panel message search right panel ([176528b](https://github.com/msgbyte/tailchat/commit/176528b303c5d25f26ad364f2f5c5cdd4d1cff61))
+
+
+### Performance Improvements
+
+* add defer for tianji script ([8d8ba6f](https://github.com/msgbyte/tailchat/commit/8d8ba6f345b8bec46dc777996e0ebeed3b53911f))
+* reduce image size ([efd7b4c](https://github.com/msgbyte/tailchat/commit/efd7b4c501e36f8890c45b08f2a6de47ee0b2988))
+
+## [1.9.2](https://github.com/msgbyte/tailchat/compare/v1.9.1...v1.9.2) (2023-10-16)
+
+
+### Bug Fixes
+
+* fix problem which ai assistant will be transparent in popover in light mode ([ffebbf6](https://github.com/msgbyte/tailchat/commit/ffebbf6c4e5981240bc36e117eb9b88ab3eec5c1))
+* fixed the bug where # would appear when typing without rich text plugin being loaded ([e768bd1](https://github.com/msgbyte/tailchat/commit/e768bd11f93e1885e004336d8395a2613380e435))
+
+
+### Features
+
+* add electron native webview render support [#152](https://github.com/msgbyte/tailchat/issues/152) ([146952d](https://github.com/msgbyte/tailchat/commit/146952d4f3519fd2dc0a74593b83acbe4f560abc))
+* add file views field to record file get frequency ([46648b4](https://github.com/msgbyte/tailchat/commit/46648b45904c96ceebf13e520612ecd1519d969b))
+* add getDisplayMedia support for desktop [#158](https://github.com/msgbyte/tailchat/issues/158) ([18bc2ed](https://github.com/msgbyte/tailchat/commit/18bc2ed4a6dec3acbb196ca054ea83f9813f5bfa))
+* add hide tip ([0bb1c85](https://github.com/msgbyte/tailchat/commit/0bb1c85f0d23d24d522773ac8c4333792ccf2258))
+* add message.searchMessage api ([235389b](https://github.com/msgbyte/tailchat/commit/235389b394237a26ea505aa7a2ce08e6cb793627))
+* **admin:** allow to delete private message ([915ed01](https://github.com/msgbyte/tailchat/commit/915ed01a5125bf855f7f9f75677d28350cfd65ab))
+* buildRegFn add reset func ([af16ebe](https://github.com/msgbyte/tailchat/commit/af16ebe47b372c313a9267f27d7ccd42d788cfb3))
+* use file save upsert logic rather than insert for avoid duplicate recording of the same file ([9b72fc3](https://github.com/msgbyte/tailchat/commit/9b72fc3ffe981e24ae1079a5e859dd30490ebb78))
+
+## [1.9.1](https://github.com/msgbyte/tailchat/compare/v1.9.0...v1.9.1) (2023-09-25)
+
+
+### Bug Fixes
+
+* fix duplicate key error collection problem in ack update api ([3c1d8ef](https://github.com/msgbyte/tailchat/commit/3c1d8efe03ee95c8d0d102bea02c610cd8368ee5))
+* fix linkmeta bilibili video support [#155](https://github.com/msgbyte/tailchat/issues/155) ([fd904fd](https://github.com/msgbyte/tailchat/commit/fd904fd37c3339176b689b2a3e4a038d1314e591))
+* fix problem of linkmeta will fetch tailchat's url and not match bbcode url ([9411200](https://github.com/msgbyte/tailchat/commit/9411200ae32437d28eed06ac3a6c4717976be7dc))
+
+
+### Features
+
+* add clipboard paste handler ([ec23b7b](https://github.com/msgbyte/tailchat/commit/ec23b7bd921e42c7d6041cacecc81c34a6ab6237))
+* add view panel permission which can control panel display for different users [#149](https://github.com/msgbyte/tailchat/issues/149) ([c59e56c](https://github.com/msgbyte/tailchat/commit/c59e56c31a7f4b6421e352444b594829ddbf79a8))
+* **admin:** added total file size statistics ([b26d34e](https://github.com/msgbyte/tailchat/commit/b26d34e8e2e8118941bc5c0fbec0445098401a73))
+
+# [1.9.0](https://github.com/msgbyte/tailchat/compare/v1.8.12...v1.9.0) (2023-09-15)
+
+
+### Bug Fixes
+
+* fix xss attacks caused by security issues in custom web group panels ([81a062a](https://github.com/msgbyte/tailchat/commit/81a062a70b54de42c66cb23e98d44f0741506b3e))
+
+
+### Features
+
+* add AdvanceGroupPanelPermission controller ([86ef2d5](https://github.com/msgbyte/tailchat/commit/86ef2d5c20ae0db7120a6b802fcb36f35dda68bb))
+* add component CollapseView ([e85c39e](https://github.com/msgbyte/tailchat/commit/e85c39e570f03c710901beef2aa6e70a7c6c208a))
+* add group panel permission filter in permission ([5f9140d](https://github.com/msgbyte/tailchat/commit/5f9140db9d55136509417bcd62f8a2b32cbc6f95))
+* add permissionMap and fallbackPermissions for group panel permission control ([e731c61](https://github.com/msgbyte/tailchat/commit/e731c61964235c64b563727c006d667414d74faf))
+* add role based send text message permission control ([8b89b26](https://github.com/msgbyte/tailchat/commit/8b89b265c15d709c0d6f19ec91f9ee749a1937ca))
+* remove alpha control for advanced permission control ([650f350](https://github.com/msgbyte/tailchat/commit/650f350350ee022242f81a119e26edf08bfef59a))
+
+## [1.8.12](https://github.com/msgbyte/tailchat/compare/v1.8.11...v1.8.12) (2023-09-04)
+
+
+### Bug Fixes
+
+* [#148](https://github.com/msgbyte/tailchat/issues/148) fix non-mime problem when get file from minio ([98e81fa](https://github.com/msgbyte/tailchat/commit/98e81fa9b7d0d230b2e1b9d96b8de376fbaefe59))
+* fix lost extname problem after compress image ([8f8e8a1](https://github.com/msgbyte/tailchat/commit/8f8e8a1e2f3e75213f110f5b882d1d571a840e4a))
+
+
+### Features
+
+* add online status in user popover ([1b813f9](https://github.com/msgbyte/tailchat/commit/1b813f9b82e49b72db2ca155c03eb6565f2a22a6))
+* add raw markdown syntax support for MarkdownRender ([55f8c45](https://github.com/msgbyte/tailchat/commit/55f8c4537a6c046d58d31df9ba2d783acaff0465))
+* add upload image feature ([4d6c70c](https://github.com/msgbyte/tailchat/commit/4d6c70c3cf15a82b56ae02c479cec9583b6a065c))
+* **admin:** add fuzzy search support for user `q` with `nickname` ([923b373](https://github.com/msgbyte/tailchat/commit/923b3734032f89459060b34cb69134b9aedce2e2))
+* allow remove converse from dmlist ([018d311](https://github.com/msgbyte/tailchat/commit/018d311da65ebfe26303d2609fb56775226217d5))
+* markdown editor add dark mode adaptation ([39879c1](https://github.com/msgbyte/tailchat/commit/39879c1413769f31d1d88730db0a983ef60dbefe))
+
+
+### Performance Improvements
+
+* optimize small size image display ([c4d3d8c](https://github.com/msgbyte/tailchat/commit/c4d3d8c3fac53955ca75ebe64dc0c8ef3eee6d35))
+
+## [1.8.11](https://github.com/msgbyte/tailchat/compare/v1.8.10...v1.8.11) (2023-08-28)
+
+
+### Bug Fixes
+
+* completion algorithm adds missing offline icons ([509d701](https://github.com/msgbyte/tailchat/commit/509d70195c889625dfe99427f0dcb34644501231))
+* fix add friend button still display when disableAddFriend is open ([5484cb7](https://github.com/msgbyte/tailchat/commit/5484cb7df13bc84bf3f692a47d5a8f6bde35608f))
+* fix linkmeta plugin dont parse {BACKEND} problem ([2b923b4](https://github.com/msgbyte/tailchat/commit/2b923b40b6e3caab60713b6c58a98716ba44417f))
+* fix no friend add button incorrect key problem ([4a06368](https://github.com/msgbyte/tailchat/commit/4a063685d3c3cbe808f363ca290088d47e7e5d48))
+* fix the problem of flickering after modifying user settings ([17464b0](https://github.com/msgbyte/tailchat/commit/17464b0c6f421831913545261937e3011120f944))
+* fix userSettings cache lost then make user settings drop bug ([fe90319](https://github.com/msgbyte/tailchat/commit/fe90319e607dc6fecff085c15ff9b70fff4cb373))
+* **openapi:** fix logoUri must be a a web uri warning problem ([b6e9190](https://github.com/msgbyte/tailchat/commit/b6e91900d8389df924a6898af0dc44c8b2736497))
+
+
+### Features
+
+* **admin:** add file delete action which delete minio file also and allow fuzzy match of objectName ([c98dc47](https://github.com/msgbyte/tailchat/commit/c98dc4714d89a8a11a7065cd1e309194cd660f90))
+* **openapi:** add backend image icon support in authorize page ([cfacc65](https://github.com/msgbyte/tailchat/commit/cfacc655f8897ae7a682f9476cf136cddccf0d60))
+* **openapi:** add delete app action ([380bc3d](https://github.com/msgbyte/tailchat/commit/380bc3d960d56509ac16ee32a73926559d1f7d1f))
+* **openapi:** add open app base info ([351641c](https://github.com/msgbyte/tailchat/commit/351641cf338402de76fa4ead814ab2961e89f33c))
+* **openapi:** allow app back action which back to app list ([283888d](https://github.com/msgbyte/tailchat/commit/283888d645554b687bfa65a9fd0e50813bd763ea))
+* **openapi:** allow edit appName, appDesc and appIcon ([e0141f4](https://github.com/msgbyte/tailchat/commit/e0141f4bc435310a6099ac87374bffd4dc90c29a))
+
+
+### Performance Improvements
+
+* lock axis on group nav sortting ([7d601f0](https://github.com/msgbyte/tailchat/commit/7d601f0577fd6d2fb80d960f537698feb6aa2c1b))
+
+## [1.8.10](https://github.com/msgbyte/tailchat/compare/v1.8.9...v1.8.10) (2023-08-21)
+
+
+### Bug Fixes
+
+* [#143](https://github.com/msgbyte/tailchat/issues/143) fix message api overreach vulnerability problem ([f7e84ca](https://github.com/msgbyte/tailchat/commit/f7e84cad35492fecbd14cabc905f24878ba07f79))
+* **desktop:** fix cannot flashframe problem ([7cdbe45](https://github.com/msgbyte/tailchat/commit/7cdbe45954be6cd822caa5aa59c1620eea002274))
+* fix badge move when hover and display scrollbar in group nav ([ad9c9f4](https://github.com/msgbyte/tailchat/commit/ad9c9f4f5244358ad81a3493bbdd636250d51d71))
+* fix converse permission check for pluginBot ([5e27ab8](https://github.com/msgbyte/tailchat/commit/5e27ab899ecdd23274c24ae732a3f014fe4202e8))
+* fix danger button color error in light mode ([a430a67](https://github.com/msgbyte/tailchat/commit/a430a670c79db8a4c955d909452bb1131377ac65))
+* fix incorrect cache key of user settings ([778c3a4](https://github.com/msgbyte/tailchat/commit/778c3a4f4b9d4185451f47c83713a8e8cfc467bc))
+* not allowed input should hide action ([464fd7c](https://github.com/msgbyte/tailchat/commit/464fd7c9f8b2a6b79d7979d5064b6c9b768f59d8))
+
+
+### Features
+
+* add disableCreateConverseFromGroup in group config ([b3d80c4](https://github.com/msgbyte/tailchat/commit/b3d80c4ef069f0f461cd6d0fc9ac6a73419efb01))
+* **admin:** add refresh in messages ([49678f3](https://github.com/msgbyte/tailchat/commit/49678f3a93aed6eed36bfc1df002e9b94ace43f9))
+* allow create converse from group user popover ([1a8b94e](https://github.com/msgbyte/tailchat/commit/1a8b94eaeda7474a7e259822f29e86effdd2f82e))
+
+
+### Performance Improvements
+
+* add persist option for one day to reduce request by react-query cache ([4b0fc66](https://github.com/msgbyte/tailchat/commit/4b0fc66ffbcd9efd5b82264804a6ffbabb6d8491))
+* **admin:** update user avatar preRenderTransform ([0058880](https://github.com/msgbyte/tailchat/commit/0058880cdc61bd02f23fc4dee9b6290188029ead))
+* compress website homepage feature image size ([560c256](https://github.com/msgbyte/tailchat/commit/560c25659891fa09513feac6f1533c9c1cb6bedd))
+* optimize db performance and greatly reduce the time-consuming fetchConverseMessage request ([ad862b7](https://github.com/msgbyte/tailchat/commit/ad862b7991b7bcb019cdec71c149d6f4a74d81b3))
+* optimize the update group configuration interaction under low-speed network ([13d32af](https://github.com/msgbyte/tailchat/commit/13d32afb481826d91814cdee180d7d4143b86804))
+* reduce entry js size ([747a6d3](https://github.com/msgbyte/tailchat/commit/747a6d3afe618d84e7430ed3589ab2acc3bcfd9c))
+
+## [1.8.9](https://github.com/msgbyte/tailchat/compare/v1.8.8...v1.8.9) (2023-08-13)
+
+
+### Bug Fixes
+
+* [#135](https://github.com/msgbyte/tailchat/issues/135) avatar dragging should be disable ([c7334eb](https://github.com/msgbyte/tailchat/commit/c7334ebd4f807cb28dbfa15b43f4e688cec7ed98))
+* fix action repush and will display repeated user ([967e671](https://github.com/msgbyte/tailchat/commit/967e6715215ab9a66f2fc1c81c807d794cbd9896))
+* fix ant badge display which will change avatar dom height ([ee636e6](https://github.com/msgbyte/tailchat/commit/ee636e6cb4d24bc2c4b446553d13206a9e1173ef))
+* fix append group member roles will occur error when operate multi users ([52647a9](https://github.com/msgbyte/tailchat/commit/52647a98b5271c8b1e813aa2bcedbd8ed1723ab1))
+* fix combined avatar render error in two people converse ([1b93bfb](https://github.com/msgbyte/tailchat/commit/1b93bfb698eb586975b111b13aeda96cc3318bf2))
+* fix message ack not trigger update problem ([7900a3e](https://github.com/msgbyte/tailchat/commit/7900a3e17fdb3577f6c1eb734576c6f7997ce21d))
+* fix plugin root route path incorrect problem ([588fae2](https://github.com/msgbyte/tailchat/commit/588fae2e60a2afc6376cd448684d454095dad27e))
+* fix tour will be break when flag DISABLE_CREATE_GROUP is been open ([d1a3523](https://github.com/msgbyte/tailchat/commit/d1a352321554ca49c4f7f7d091da284f390284d7))
+* fixed an issue where the avatar size control could change ([d1035cc](https://github.com/msgbyte/tailchat/commit/d1035cc57c164888ffc946d908f15584500de11f))
+
+
+### Features
+
+* [#120](https://github.com/msgbyte/tailchat/issues/120) add group nav item sortable feature ([8f3ec1c](https://github.com/msgbyte/tailchat/commit/8f3ec1c996b1ebb86d88ae3c0fee3b95a08eb86b))
+* add dm create action in sidebar ([8c26856](https://github.com/msgbyte/tailchat/commit/8c268568dcc5a10a3566a4aceff060181b29a71d))
+* add github repo group ensure action which will auto create group and subscribe activity ([c96367f](https://github.com/msgbyte/tailchat/commit/c96367f157eb221952fb7f8358afa48858270b04))
+* add iam proxy support for github ([5b718c4](https://github.com/msgbyte/tailchat/commit/5b718c4b040c4ede099467dbb0f4f5e8232747a8))
+* add the multi converse strategy, create a multi converse without reusing past converse ([edc076f](https://github.com/msgbyte/tailchat/commit/edc076f430d8c418e0049501b6ac0f00aa99c3b2))
+* converse suppport order with message, and add more checker for local message ([2468d45](https://github.com/msgbyte/tailchat/commit/2468d45c66d33879e9dd38e776ad5666f8e7927b))
+
+
+### Performance Improvements
+
+* add offline icons sort ([cbfb7c8](https://github.com/msgbyte/tailchat/commit/cbfb7c8449d9d1249c512203ed9c8e8143309dac))
+* optimize group drag positioning ([2adfe92](https://github.com/msgbyte/tailchat/commit/2adfe923af3d6b0dbb88f375f05d50708513873a))
+* optimize low-speed networking to send message ([4506a63](https://github.com/msgbyte/tailchat/commit/4506a63db086543a6f9bbc6f3b48222a6bfc5103))
+
+## [1.8.8](https://github.com/msgbyte/tailchat/compare/v1.8.7...v1.8.8) (2023-08-06)
+
+
+### Bug Fixes
+
+* filter summary messages will bypass recall message problem ([3f06e3d](https://github.com/msgbyte/tailchat/commit/3f06e3d35e83207d8623f86a8eb6f1ecca640336))
+* fix badge in sidebaritem bouncing when hover ([c045475](https://github.com/msgbyte/tailchat/commit/c045475f6293c40258703917afc4aa4f03cb54db))
+* fix problem which allow operate to local message ([9fb0246](https://github.com/msgbyte/tailchat/commit/9fb024659b9d8b21889c6919cb8d5de3e6841dbd))
+
+
+### Features
+
+* add friend nav item badge when has unprocess friend request ([bc36cb0](https://github.com/msgbyte/tailchat/commit/bc36cb06651c3ca21662aaebfc9210f3aba138f1))
+* add grouping by status to member list ([288f5a6](https://github.com/msgbyte/tailchat/commit/288f5a61e8999eb7d13b7c5593babc842ba87631))
+* add i18n support for antd and WebFastifyForm ([63c203e](https://github.com/msgbyte/tailchat/commit/63c203e8973d1203be0b9ef5b14b6ac7b8aba002))
+* add local message to avoid network error which occur repeat send same message ([9bb931a](https://github.com/msgbyte/tailchat/commit/9bb931aa5d57e1e158b1bdefda61cef3f2908f2f))
+* add person icon badge when has unprocessed friend request ([1b84143](https://github.com/msgbyte/tailchat/commit/1b84143bbe73a4f0d578d89bf14c9df040ccb945))
+* add plugin which can auto join group after register or createTemporaryUser ([1084913](https://github.com/msgbyte/tailchat/commit/1084913d3a43aa1c3c06add37e66c0765d6cc9d0))
+* **admin:** add analytics page ([39e0b2c](https://github.com/msgbyte/tailchat/commit/39e0b2cee77e2da02a2824bc4af3ac1b883f558e))
+* **admin:** add operate which can add group member ([8df7b47](https://github.com/msgbyte/tailchat/commit/8df7b47c07c050f6debfb1e36fb49029566186af))
+* **admin:** allow create group through admin ([58f7144](https://github.com/msgbyte/tailchat/commit/58f7144c315736b23c2d06fcfecd5e8a9714e27a))
+* **admin:** allow search user and group with id ([5099170](https://github.com/msgbyte/tailchat/commit/50991708f2611e1b207755adc79c08d29a36946a))
+
+
+### Performance Improvements
+
+* optimize the loading experience of the web panel ([7db9d63](https://github.com/msgbyte/tailchat/commit/7db9d63349d18357c18ff54eaec9be69825a63a0))
+
+## [1.8.7](https://github.com/msgbyte/tailchat/compare/v1.8.6...v1.8.7) (2023-07-30)
+
+
+### Bug Fixes
+
+* **admin:** fix number problem in group member count ([59ad340](https://github.com/msgbyte/tailchat/commit/59ad34082c7c6b4cd3bf29b7d6069f2262050589))
+* fix tailchat-client-sdk dependencies problem ([c80e619](https://github.com/msgbyte/tailchat/commit/c80e61949c185ea380a258ae2f907ea6cb0eb584))
+
+
+### Features
+
+* add <PreJoinView /> for voice channel ([79a5b76](https://github.com/msgbyte/tailchat/commit/79a5b76ba4e79324010b570e1d9c92e4855e8c1c))
+* add alioss or other s3 protocol external storage support [#104](https://github.com/msgbyte/tailchat/issues/104) ([5849978](https://github.com/msgbyte/tailchat/commit/584997826b2544170e57a81ab8bb73fc4a4c529e))
+* add fullscreen btn to make dom full screen ([4054489](https://github.com/msgbyte/tailchat/commit/4054489eafa605a992afc70915603d5c8c1f92c2))
+* add group badge for current room participants ([d99e556](https://github.com/msgbyte/tailchat/commit/d99e556c796fdc7fcbc4b5975d302cb6f581915e))
+* add keep alive overlay for livekit view ([3a56d13](https://github.com/msgbyte/tailchat/commit/3a56d13da75c9786a3dede68aab68a2d22fbf13c))
+* add leave pre room when join new room ([fe3b68f](https://github.com/msgbyte/tailchat/commit/fe3b68fb752f47ec715511c490ec9182dedb5344))
+* add livekit into production env ([263be66](https://github.com/msgbyte/tailchat/commit/263be66d335f66356b806ab053e3b81e17ec69d9))
+* add navbar icon which can jump to active panel ([95c589d](https://github.com/msgbyte/tailchat/commit/95c589df4fdc7dbaeaa45ba29d31fc3df29b70d8))
+* add roomMembers list in prejoin view ([d68f75b](https://github.com/msgbyte/tailchat/commit/d68f75b49135a747a3f388bc800e4c4967f59316))
+* **admin:** add type and emailVerified field in user list ([a56f412](https://github.com/msgbyte/tailchat/commit/a56f412995cedbeede8f006fcbba3bc0239e7ecf))
+* **livekit:** add basic room and service endpoint ([78407f0](https://github.com/msgbyte/tailchat/commit/78407f04d56dec2a0b501f41c58697f915e61a80))
+* **livekit:** add livekit webhook receiver ([3610b79](https://github.com/msgbyte/tailchat/commit/3610b796ec6559dc0c0a6dd0e1b153cbcd9a7261))
+* **livekit:** add long dependency ([80347f9](https://github.com/msgbyte/tailchat/commit/80347f9c4181ddd1d37a517c59c4a21067c615ba))
+* regCustomPanel add useIsShow props to hide icon ([c7497cc](https://github.com/msgbyte/tailchat/commit/c7497cc79e89dbcf3220ed986e481e7538039a06))
+* rewrite all videoconference components. support useravatar and i18n ([8eca54a](https://github.com/msgbyte/tailchat/commit/8eca54a77b50970c1e1ab353975643fccce44218))
+
+## [1.8.6](https://github.com/msgbyte/tailchat/compare/v1.8.5...v1.8.6) (2023-07-24)
+
+
+### Bug Fixes
+
+* fix i18n problem in about panel ([542e029](https://github.com/msgbyte/tailchat/commit/542e0292ca04659a40715ad879fbb6e80eca98db))
+
+
+### Features
+
+* add TailchatWsClient and update tailchat-types ([924f644](https://github.com/msgbyte/tailchat/commit/924f644d49c6b56190854ac111ec156f2b0c44b9))
+* add tushan icon in about page ([a88c3a6](https://github.com/msgbyte/tailchat/commit/a88c3a62a8fa6c484995e53c26fc42ddcbf1a69a))
+* **desktop:** add flash frame when receive message ([bf5c040](https://github.com/msgbyte/tailchat/commit/bf5c0405153f90e24c54889d3da4fb55147a2d1e))
+* **electron:** add auto upgrade version check ([5305b31](https://github.com/msgbyte/tailchat/commit/5305b31ebd18cc9788f79024776e0f93f396dc49))
+
+
+### Performance Improvements
+
+* append missed offline icons ([a17fe34](https://github.com/msgbyte/tailchat/commit/a17fe349d3a2eba8277e47b270f2dd6945fb22ac))
+* **desktop:** reduce logo png size ([9d24b10](https://github.com/msgbyte/tailchat/commit/9d24b10f5101eec3a7100dadb53d5d585943e084))
+* optimize page loading timing, and allow refresh on resource loading issues ([f48ecfb](https://github.com/msgbyte/tailchat/commit/f48ecfb9e80aaab90d4def95c4e43789f8a927d4))
+* optimize the avatar text performance of the `com.msgbyte.genshin` plugin ([734afff](https://github.com/msgbyte/tailchat/commit/734afff15d8131234db294fe48a50b0c426f6e73))
+* reduce instance number in docker-compose ([920cbf6](https://github.com/msgbyte/tailchat/commit/920cbf6a448339348b27c384b7ba9e95e56d8a44))
+* remove admin-old to reduce image size ([6f57f80](https://github.com/msgbyte/tailchat/commit/6f57f80f578c621e21d7f3150bc6bf23bcdb61e3))
+
+## [1.8.5](https://github.com/msgbyte/tailchat/compare/v1.8.4...v1.8.5) (2023-07-19)
+
+
+### Bug Fixes
+
+* [#106](https://github.com/msgbyte/tailchat/issues/106) fixed maybe xss attack from custom web html panel ([6d16e09](https://github.com/msgbyte/tailchat/commit/6d16e09ae1ea8e01257ae112fdf5f429e922cb88))
+* add fallback for github account which maybe not include name in github ([bd4907d](https://github.com/msgbyte/tailchat/commit/bd4907dfe537d9d33677e88ce420c7a64c044c0a))
+* add plugin list maybe repeat problem ([b129cd7](https://github.com/msgbyte/tailchat/commit/b129cd78874668d2d7ae1e1d402b1e83d6e07f46))
+* added forceUploadOriginImage to force specify whether to enable image compression ([a224ac6](https://github.com/msgbyte/tailchat/commit/a224ac602eb0288557c6e340e438a309c9e9ac6d))
+
+
+### Features
+
+* add broadcast notify when call config.setClientConfig ([5ca5c76](https://github.com/msgbyte/tailchat/commit/5ca5c765b847ef28664eeedc38894d711137d4a4))
+* add global announcement ([798abeb](https://github.com/msgbyte/tailchat/commit/798abeb1ec700ed4dfd04f4359c4c11e655b20e2))
+
+
+### Performance Improvements
+
+* **admin:** cache management segmentation ([fba1b26](https://github.com/msgbyte/tailchat/commit/fba1b261ee298cea911f4c0246057b69de6f5a8d))
+* optimize the display of global notifications and increase system notification prompts ([7419df1](https://github.com/msgbyte/tailchat/commit/7419df17758bb7ece70b2007931d066e38c4a5f6))
+* optimize the performance of the member list in the case of large data ([4c77d14](https://github.com/msgbyte/tailchat/commit/4c77d144e8c0d086c457966092281326a237ba91))
+* update custom web panel render xss rules ([fd18eb7](https://github.com/msgbyte/tailchat/commit/fd18eb70301de2ce3c9265e2986c14a3e2c0d356))
+* use group extra to storage custom web panel html ([721da6f](https://github.com/msgbyte/tailchat/commit/721da6f34c8ab93aaa5d4dd6bb422a74480397fc))
+
+## [1.8.4](https://github.com/msgbyte/tailchat/compare/v1.8.3...v1.8.4) (2023-07-14)
+
+
+### Bug Fixes
+
+* [#102](https://github.com/msgbyte/tailchat/issues/102) fix non-email github account login cannot register problem ([a0cbc45](https://github.com/msgbyte/tailchat/commit/a0cbc45760cf0f3b8743f1e410934c88eaa29fa2))
+* add invite code generate check to avoid duplicated invite code ([b6e978e](https://github.com/msgbyte/tailchat/commit/b6e978e569750dfb467e0ed4595bbd380d180161))
+* fix discover server card color schema fit ([480a1e3](https://github.com/msgbyte/tailchat/commit/480a1e344209a8ac9dbc21e88eab7e06883cf73c))
+* fix problem if send message throw error will clear input message ([1a81281](https://github.com/msgbyte/tailchat/commit/1a81281ad1e18a175439827bd8c8a1bce2397b36))
+* fix unupdate problem in group invite code create action ([9bb4b30](https://github.com/msgbyte/tailchat/commit/9bb4b301434a3250ea86e01a889183f197f9bfeb))
+
+
+### Features
+
+* add clear button for group background image ([4028f46](https://github.com/msgbyte/tailchat/commit/4028f46083775bbaed2139b44a66577bdd735b48))
+* add create invite code edited data update. now can review changed info ([f44a5c9](https://github.com/msgbyte/tailchat/commit/f44a5c9ec0696d1d6bdcbda5dc13b0e624e767b0))
+* add env DISABLE_PLUGIN_STORE which will hide plugin store entry ([51c7111](https://github.com/msgbyte/tailchat/commit/51c7111621d20a5545ca2964176c9355a8cd094a))
+* add feature disableAddFriend which can disable add friends ([36061f6](https://github.com/msgbyte/tailchat/commit/36061f6b740cf23fa663139ae71fbee2a4e99ee6))
+* add group background image in invite ([947d056](https://github.com/msgbyte/tailchat/commit/947d05697afdd0acdeb1c67c8ae54a2e7dd12bf9))
+* add invite code usage limit for every invite code ([738eb75](https://github.com/msgbyte/tailchat/commit/738eb750039a0f56ad3ea68df894f46554a81e56))
+* add jump to button for joined groups in discover ([2128c01](https://github.com/msgbyte/tailchat/commit/2128c019c41a220131e91851968289792e424706))
+* add unique index for group invite code ([8c1c03e](https://github.com/msgbyte/tailchat/commit/8c1c03e91dd81c9d3bf552f915d67d613c87a03c))
+* **desktop:** add menu and shortcuts to reload page ([0c8da55](https://github.com/msgbyte/tailchat/commit/0c8da55a2cbca8efe863ae1b38472cc523eccc86))
+* **desktop:** when file download completed, open folder ([2e48935](https://github.com/msgbyte/tailchat/commit/2e489351c15f2b6753babedbfe6b4b8de9d28418))
+
+
+### Performance Improvements
+
+* add url link for github subscribe message ([0d67261](https://github.com/msgbyte/tailchat/commit/0d6726111d182e2eb26a69d3cc94ec680d0e2331))
+* Remove linkmeta plugin based on performance considerations ([03e8ce1](https://github.com/msgbyte/tailchat/commit/03e8ce132ff05c8c36c543fe1205063b487a54c4))
+
+## [1.8.3](https://github.com/msgbyte/tailchat/compare/v1.8.2...v1.8.3) (2023-07-10)
+
+
+### Bug Fixes
+
+* **admin:** fix import problem in import plugin model ([6afde58](https://github.com/msgbyte/tailchat/commit/6afde58c60f643bb50d35a933d875f37efde33be))
+* append some ignored offine icons ([487bff7](https://github.com/msgbyte/tailchat/commit/487bff78f9b63f1014cbdf0f04f0b1b60f85d6ca))
+* fix ci problem, update lockfile ([1384e49](https://github.com/msgbyte/tailchat/commit/1384e4957c94e4a7c541785e0a2f74716b61b47a))
+* fix NavItem badge move when display scrollbar problem ([4fdd876](https://github.com/msgbyte/tailchat/commit/4fdd8766af993834766f1b4ae2b92f41079d41f6))
+
+
+### Features
+
+* [#76](https://github.com/msgbyte/tailchat/issues/76) add offline icons plugin which will prefetch icons from iconify ([25a5c41](https://github.com/msgbyte/tailchat/commit/25a5c41bfc4ac620a7f5302808589b5e157bf5c3))
+* add com.msgbyte.discover plugin as published plugin ([bc5c522](https://github.com/msgbyte/tailchat/commit/bc5c522a775abbf0f217e52cc9888bd3163363da))
+* add discover plugin basic web page ([e507aae](https://github.com/msgbyte/tailchat/commit/e507aaee9d65b95bb3097dc029e51b39b5d270a0))
+* add discover server card and join action ([f943edf](https://github.com/msgbyte/tailchat/commit/f943edf3fe440d2d28489ad17d5c8bf2c8489e38))
+* add group description ([065f7d4](https://github.com/msgbyte/tailchat/commit/065f7d44c8ab853fea42ebcab835b3ec00fe8448))
+* add member count in group summary ([7b699ca](https://github.com/msgbyte/tailchat/commit/7b699ca606069e5e5741bf1979b732d645f7dfb6))
+* **admin:** add discover resource manager ([54c2676](https://github.com/msgbyte/tailchat/commit/54c2676d23b84050e9643cded1ad6a5753c32e4e))
+* plugin discover add error handle and add description ([f766d33](https://github.com/msgbyte/tailchat/commit/f766d33bb3ec11acc47d3895dd6c8c9c335d48d7))
+* **plugin:** add bo data fallback in discover ([d77eef4](https://github.com/msgbyte/tailchat/commit/d77eef44ff192f7da8ad92275ccef9c1865e7105))
+
+
+### Performance Improvements
+
+* add com.msgbyte.linkmeta plugin into builtin plugin list ([4c2f883](https://github.com/msgbyte/tailchat/commit/4c2f88352daa4402fe6be639babd3b1880c0a3d4))
+* add getGroupBasicInfo request cache ([2709beb](https://github.com/msgbyte/tailchat/commit/2709beb2d8c67bdfea2c997f12d534e0290a912a))
+* **admin:** change admin summary days from 7 to 14 ([94090e6](https://github.com/msgbyte/tailchat/commit/94090e666404d655ea1c674edd5ae351c47b787e))
+* **discover:** add text wrap in card desc ([9b63be6](https://github.com/msgbyte/tailchat/commit/9b63be60e64fe89fe36d02f30168c506ed5c870e))
+* fix ai-assistant answer too long problem ([b419f44](https://github.com/msgbyte/tailchat/commit/b419f44d1990edb02611c80ebd3e87ed0e2a044a))
+
+## [1.8.2](https://github.com/msgbyte/tailchat/compare/v1.8.1...v1.8.2) (2023-07-05)
+
+
+### Bug Fixes
+
+* **admin:** fix dashboard color conflict problem ([9f6d10c](https://github.com/msgbyte/tailchat/commit/9f6d10cb2829cdd211db8688d779d45fab37a89f))
+* fix auth http client not pass storage key problem [#98](https://github.com/msgbyte/tailchat/issues/98) ([eec3a79](https://github.com/msgbyte/tailchat/commit/eec3a798995c905f0d34cf2f2c67c9a9cab2c339))
+* **mobile:** fix name error when fetch serverName ([3a03c71](https://github.com/msgbyte/tailchat/commit/3a03c7124fac265d95be183967b9769b5c7a61d3))
+
+
+### Features
+
+* create discover plugin and define db schema ([4cd2267](https://github.com/msgbyte/tailchat/commit/4cd2267d6490137085aedbffb4467066c2810dd9))
+* **desktop:** support add server and remove server ([b7e720d](https://github.com/msgbyte/tailchat/commit/b7e720dd68f5d913e92e8fe2949714c9aeaaeaeb))
+
+## [1.8.1](https://github.com/msgbyte/tailchat/compare/v1.8.0...v1.8.1) (2023-07-03)
+
+
+### Bug Fixes
+
+* fix audio.play() error throw which will marked as Unhandled ([741e9f7](https://github.com/msgbyte/tailchat/commit/741e9f7983748ff9aea7a04c8f31b3622b3f65bf))
+* fix builtin plugin cannot load with {BACKEND} ([05aae65](https://github.com/msgbyte/tailchat/commit/05aae656a2995260d8b96fce026d705c5056c0c9))
+* fix translation problem ([b038c5a](https://github.com/msgbyte/tailchat/commit/b038c5adf36c87f658a173f9f7b0d2ae05fa4f8d))
+* **iam:** fix account existed problem ([d906322](https://github.com/msgbyte/tailchat/commit/d906322eb4dcdae6ce2be2e06dc7f0a08e43c661))
+
+
+### Features
+
+* add chat.inbox.batchAppend action which can batch add inbox item ([3ad1e44](https://github.com/msgbyte/tailchat/commit/3ad1e4410cd85fc3374b1d0f8517d65ae0c445c8))
+* add env `DISABLE_CREATE_GROUP` which can control user allow create group ([2e56139](https://github.com/msgbyte/tailchat/commit/2e56139925dbaaa70556e8d46acb9c6268b071b3))
+* add fim plugin and add github oauth strategy ([b64d037](https://github.com/msgbyte/tailchat/commit/b64d037b60f26d2d8c234d6d2951400d2a159060))
+* add fim record provider create / search and sign token ([ed1d7cc](https://github.com/msgbyte/tailchat/commit/ed1d7cc1d629fee2c7118fd8fa87a5797b98a536))
+* add markdown inbox item which help to develop system notice ([a1048b7](https://github.com/msgbyte/tailchat/commit/a1048b77fd11413b9c388c35cd067bc7fe6b048b))
+* add nickname edit in register view ([40b0076](https://github.com/msgbyte/tailchat/commit/40b007698f478c7bc5d14a608c7ff546bc04a8e3))
+* add plugin com.msgbyte.env.electron ([eb83f78](https://github.com/msgbyte/tailchat/commit/eb83f784a1d4e67040d400652c077b7e8998346f))
+* **admin:** add MarkdownEditor ([ca95a0d](https://github.com/msgbyte/tailchat/commit/ca95a0dac78402b6c08b344a3af27190a1727255))
+* **admin:** add system notify ([4498453](https://github.com/msgbyte/tailchat/commit/449845315e0042eec9443c0f853ee12c99441bcb))
+* **desktop:** add desktop inject ([27eee90](https://github.com/msgbyte/tailchat/commit/27eee90034cfa5714d659c25457d40b70312b343))
+* **desktop:** add screenshot button in chatbox at electron env ([aebcd0d](https://github.com/msgbyte/tailchat/commit/aebcd0d130877f27c240aa7449ebdabddd286ef8))
+* **fim:** add avatar storage and enable fim ([a8bb744](https://github.com/msgbyte/tailchat/commit/a8bb744bfd343dec70a622c0230fb09552ee1c98))
+* **fim:** add fim login callback ([f6ef59e](https://github.com/msgbyte/tailchat/commit/f6ef59e37d4563ed23de4a6ed3a3ad9a44e7653e))
+* github oauth login view ([e81e7ad](https://github.com/msgbyte/tailchat/commit/e81e7ad64f76ac33584eeb5c7db96de1709a222c))
+* iam plugin add into builtin plugin ([e0d6738](https://github.com/msgbyte/tailchat/commit/e0d673867725278a8e6132da1e11b65e900be5d7))
+* **iam:** added a security policy that allows setting domain name verification for passing tokens ([9ae787f](https://github.com/msgbyte/tailchat/commit/9ae787f42b116a1a5d27afe94191f796a695b286))
+
+
+### Performance Improvements
+
+* beautify dashboard chart color ([fd9787f](https://github.com/msgbyte/tailchat/commit/fd9787f77bc6588eb0a6365e1e59843f3080cade))
+* beautify github repo star message with emoji ([22651c7](https://github.com/msgbyte/tailchat/commit/22651c74bf86f7c603c7d4d6cd0fbbd0835e5f6c))
+
+# [1.8.0](https://github.com/msgbyte/tailchat/compare/v1.7.6...v1.8.0) (2023-06-21)
+
+
+### Bug Fixes
+
+* fix problem on bbcode value maybe include space ([b47a22b](https://github.com/msgbyte/tailchat/commit/b47a22b51f2f05e9925b637f2e6b31a36637b00e))
+* remove admin-next in source code ([c4b1af5](https://github.com/msgbyte/tailchat/commit/c4b1af5e626f79184c96594e7aa34bb40547f14a))
+
+
+### Features
+
+* add batch delete ([bde3665](https://github.com/msgbyte/tailchat/commit/bde36656d5a968bbddc0302d1fd2e34b62f9e14e))
+* add group panel in PanelRoute ([99f6793](https://github.com/msgbyte/tailchat/commit/99f679363f4148018fd910999b6542d484fde19a))
+* add limit for temporary to verify email ([3f6c3b0](https://github.com/msgbyte/tailchat/commit/3f6c3b08d8b364d1b3727754aeea379fda78f1b7))
+* add preRenderTransform in field file.url ([886e274](https://github.com/msgbyte/tailchat/commit/886e274a52e35761302702029b5a773ca70a757b))
+* **admin-next:** add resetPasswordTip ([de357bd](https://github.com/msgbyte/tailchat/commit/de357bd4e7bc409c15d213b1878fd0e0286c4c22))
+* **admin-next:** add system user fields support ([2796a7d](https://github.com/msgbyte/tailchat/commit/2796a7d38a7866a010af5ec86def68fe3b8426c3))
+* **cli:** add `smtp test` command which help user send test email full ([5bfa5b9](https://github.com/msgbyte/tailchat/commit/5bfa5b91bfbc1d529b4ba257960427c588d09e5c))
+* **cli:** add benchmark connections and register command ([9524502](https://github.com/msgbyte/tailchat/commit/9524502d7050c7beb6a4cdaf8f6775c04366bd46))
+* **cli:** add message revice test ([d096821](https://github.com/msgbyte/tailchat/commit/d09682139fa785ef3b0da1f82fcd414a338a7295))
+* **cli:** cli benchmark connections add progress ([77e6927](https://github.com/msgbyte/tailchat/commit/77e6927cf02601127f8311c0d0f00590867aac04))
+* health add more context ([8a9dd4f](https://github.com/msgbyte/tailchat/commit/8a9dd4f65c20675cbea99c0c4e516aa520771b9a))
+
+
+### Performance Improvements
+
+* beautify the visual experience of message text on windows [#41](https://github.com/msgbyte/tailchat/issues/41) ([2f0c8b2](https://github.com/msgbyte/tailchat/commit/2f0c8b2a265d1ed13b6a425b6bfd84cb063d2987))
+* **cli:** optimize the experience of the benchmark command ([2d6eaac](https://github.com/msgbyte/tailchat/commit/2d6eaac96a1205c6762ee927054ca66969421d14))
+
+## [1.7.6](https://github.com/msgbyte/tailchat/compare/v1.7.5...v1.7.6) (2023-06-07)
+
+
+### Bug Fixes
+
+* fix friend struct changed problem in `FriendPicker` ([fa49886](https://github.com/msgbyte/tailchat/commit/fa498867c4a40f023cdb613c9137a831fad146db))
+
+
+### Features
+
+* add ban user ([ea3ad15](https://github.com/msgbyte/tailchat/commit/ea3ad15f5fd8e5669b713d1c73f2d7b67211e991))
+* add friend nickname set model and api ([7029e67](https://github.com/msgbyte/tailchat/commit/7029e67f0cc8785f3bd7a30251ce2e8cdad5fb76))
+* add friend nickname support in everywhere ([20c16ad](https://github.com/msgbyte/tailchat/commit/20c16adeec66582943f952c4303a896993ea4bc4))
+* add mention support friend nickname ([902ab8f](https://github.com/msgbyte/tailchat/commit/902ab8f422a8580e8d7c394bf0ef21a0d6a3d4e9))
+* add message count ([db52b3d](https://github.com/msgbyte/tailchat/commit/db52b3d5d527e850609393bbf7287458eb3b0384))
+* add unban operation ([1b880a5](https://github.com/msgbyte/tailchat/commit/1b880a50518fb5876783b09f8e477291802e0c82))
+* **admin-next:** add cache manager ([0d7d71d](https://github.com/msgbyte/tailchat/commit/0d7d71d22f5a81f1a6ac5d4f08a8c4701229d530))
+* **admin-next:** add disableGuestLogin and disableUserRegister in admin/config ([43cc8e3](https://github.com/msgbyte/tailchat/commit/43cc8e34a3c0960feff7ccaa6ba97359cb990d0e))
+* **admin-next:** add user count chart ([54a7340](https://github.com/msgbyte/tailchat/commit/54a73403d73ff1acc55e4a41d49a6f1c841d533f))
+* mail record createdAt and updatedAt ([4d6e85c](https://github.com/msgbyte/tailchat/commit/4d6e85c849ee1cf8f671de33a74ea4afd28ba741))
+
+
+### Performance Improvements
+
+* **admin-next:** perf message content and id field ([e0a22e0](https://github.com/msgbyte/tailchat/commit/e0a22e01be286a1c33306a657ab3011b3bcbe389))
+
+## [1.7.5](https://github.com/msgbyte/tailchat/compare/v1.7.4...v1.7.5) (2023-05-27)
+
+
+### Bug Fixes
+
+* fix check logic in getGroupUserPermission ([bad6aa0](https://github.com/msgbyte/tailchat/commit/bad6aa05fadcececafdf129254f35c5ef5f6b05e))
+
+
+### Features
+
+* add preRenderTransform to parse avatar url and add reference field ([1ae5770](https://github.com/msgbyte/tailchat/commit/1ae5770603c7129490798cdf1e1f306368b2daaa))
+* **admin-next:** custom admin header and footer ([7f08f54](https://github.com/msgbyte/tailchat/commit/7f08f5408cd8a6f53b7235805f5178e0a0eff977))
+* jump to login page in invite view ([9868d24](https://github.com/msgbyte/tailchat/commit/9868d24ad569e077a678a63be5e81c7e6a16a408))
+
+## [1.7.4](https://github.com/msgbyte/tailchat/compare/v1.7.3...v1.7.4) (2023-05-24)
+
+
+### Bug Fixes
+
+* fix after hook not work problem ([3f22037](https://github.com/msgbyte/tailchat/commit/3f220373c7471abccba1951fe556453e804d8535))
+* fix updateGroupConfig not work problem ([ff86b84](https://github.com/msgbyte/tailchat/commit/ff86b84c14c631c2b9f91c098a7fcb2f69b9dcd7))
+* fix website title with global config ([0922f83](https://github.com/msgbyte/tailchat/commit/0922f83bb92ddea1ed4fcc8ae8bac90a387624f0))
+* fix will input enter when send image with enter key ([98e78e2](https://github.com/msgbyte/tailchat/commit/98e78e28f87a24c498b3e76ba5048affbf286a6a))
+
+
+### Features
+
+* add cache refresh when load user popover ([0b116e5](https://github.com/msgbyte/tailchat/commit/0b116e54060049fe2e2e0383108a26fdef66020b))
+* add group data get and save action in group.extra ([d83300e](https://github.com/msgbyte/tailchat/commit/d83300e141e0a5e44479fdb6c3860baa87e5cff2))
+* add multi line support for chatbox ([7b17614](https://github.com/msgbyte/tailchat/commit/7b176141be79a4bd223b9900161a7b96f1fca8b2))
+* add regPluginGroupConfigItem ([41cdfb0](https://github.com/msgbyte/tailchat/commit/41cdfb071514fd062faf2185820042c47a31a236))
+* add sender nickname in wxpusher ([5b238bf](https://github.com/msgbyte/tailchat/commit/5b238bf860d20bf4e99ead656a8083129bff16ef))
+* add welcome plugin for user which can send welcome message when user join group ([dbebbc5](https://github.com/msgbyte/tailchat/commit/dbebbc54e66172653006a002c03b8932cb9d8ed2))
+* **admin-next:** add custom dashboard ([4ee2fa8](https://github.com/msgbyte/tailchat/commit/4ee2fa81e2a49ff52dde730002091f5457c583be))
+* **admin-next:** add custom translation ([ba28719](https://github.com/msgbyte/tailchat/commit/ba287195b5e7ca89302f1ad227e1939ca5029688))
+* **admin-next:** add mail ([60b050d](https://github.com/msgbyte/tailchat/commit/60b050d416599b0be84a4b9d2eaf3df3e38fb4a1))
+* **admin-next:** add reset password ([26f4c6a](https://github.com/msgbyte/tailchat/commit/26f4c6a8646f495bf3bea5cd465fc30ba6e2b5d8))
+* **cli:** add smtp tools which help user positioning issue ([e357d2e](https://github.com/msgbyte/tailchat/commit/e357d2e1c56e4db376e2b1b29139581e4b32596d))
+
+
+### Performance Improvements
+
+* **admin-next:** optimize mongodb's performance on statistical quantities ([11154f7](https://github.com/msgbyte/tailchat/commit/11154f735b3ddbfcb33f4b6819ec78993e8a2044))
+
 ## [1.7.3](https://github.com/msgbyte/tailchat/compare/v1.7.2...v1.7.3) (2023-05-11)
 
 

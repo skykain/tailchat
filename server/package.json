@@ -1,11 +1,10 @@
 {
   "name": "tailchat-server",
-  "version": "1.0.2",
+  "private": true,
   "main": "index.js",
   "repository": "https://github.com/msgbyte/tailchat-server.git",
   "author": "moonrailgun <moonrailgun@gmail.com>",
   "license": "Apache-2.0",
-  "private": true,
   "scripts": {
     "dev": "concurrently --kill-others npm:dev:main npm:dev:sdk npm:dev:plugins npm:dev:admin",
     "dev:main": "ts-node ./runner.ts",
@@ -25,24 +24,16 @@
     "admin": "cd admin && pnpm run build && pnpm run start",
     "plugin:install": "node ./scripts/installPlugin.js",
     "protobuf": "proto-loader-gen-types --longs=String --enums=String --defaults --oneofs --grpcLib=@grpc/grpc-js --outDir=proto/ proto/*.proto",
-    "gen:swagger": "ts-node ./scripts/swagger.ts"
-  },
-  "pnpm": {
-    "peerDependencyRules": {
-      "ignoreMissing": [
-        "acorn",
-        "ts-jest",
-        "@typegoose/typegoose",
-        "moleculer"
-      ]
-    }
+    "gen:swagger:old": "ts-node ./scripts/swagger.ts",
+    "gen:openapi": "tailchat-service-openapi-generator"
   },
   "dependencies": {
     "@socket.io/admin-ui": "^0.5.1",
-    "@socket.io/redis-adapter": "^7.0.0",
+    "@socket.io/redis-adapter": "^8.2.1",
     "@typegoose/typegoose": "9.3.1",
     "@types/blessed": "^0.1.19",
     "@types/bluebird": "^3.5.36",
+    "@types/glob": "^8.1.0",
     "accepts": "^1.3.8",
     "bcryptjs": "^2.4.3",
     "bluebird": "^3.7.2",
@@ -52,6 +43,7 @@
     "ejs": "^3.1.6",
     "es6-error": "^4.1.1",
     "execa": "5",
+    "glob": "^10.3.3",
     "got": "11.8.3",
     "i18next": "^20.3.5",
     "ioredis": "^4.27.6",
@@ -59,7 +51,6 @@
     "lodash": "^4.17.21",
     "mime": "^2.5.2",
     "mkdirp": "^1.0.4",
-    "moleculer-minio": "^2.0.0",
     "moment": "^2.29.1",
     "mongodb": "4.2.1",
     "mongoose": "6.1.1",
@@ -67,11 +58,13 @@
     "nanoid": "^3.1.23",
     "nodemailer": "^6.7.2",
     "oidc-provider": "^7.10.6",
+    "p-map": "^4.0.0",
+    "promise-retry": "^2.0.1",
     "qs": "^6.10.3",
     "redlock": "^4.2.0",
     "send": "^0.18.0",
     "serve-static": "^1.15.0",
-    "socket.io": "^4.2.0",
+    "socket.io": "^4.7.2",
     "socket.io-msgpack-parser": "^3.0.2",
     "tailchat-server-sdk": "workspace:*",
     "ts-node": "^10.0.0",
@@ -98,6 +91,7 @@
     "@types/node": "16.11.7",
     "@types/nodemailer": "^6.4.4",
     "@types/oidc-provider": "^7.8.1",
+    "@types/promise-retry": "^1.1.3",
     "@types/send": "^0.17.1",
     "@types/serve-static": "^1.15.0",
     "@types/swagger-jsdoc": "^6.0.1",
@@ -114,6 +108,7 @@
     "prettier": "^2.3.2",
     "socket.io-client": "^4.1.3",
     "swagger-jsdoc": "^6.2.8",
+    "tailchat-service-openapi-generator": "workspace:^",
     "tailchat-service-swagger-generator": "workspace:^1.0.0",
     "ts-jest": "27.1.4",
     "vinyl-fs": "^3.0.3"

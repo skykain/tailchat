@@ -11,13 +11,15 @@ Feel free submit `pr/issue` to submit your contribution to `Tailchat`, so that w
 
 [Join TailchatNightly Channel](https://nightly.paw.msgbyte.com/invite/8Jfm1dWb)
 
-## Code
+## Project/Code
 
-*(empty)*
+- [Tailchat-Assistant](https://git.povario.com/powermaker450/Tailchat-Assistant): Tailchat Assistant is your very own AI-powered chat bot, ready to implement into your guild!
+
 
 ## Video
 
 - [【好玩儿的Docker项目】激情畅聊！十分钟搭建一个插件化易拓展的开源即时聊天（IM）应用——Tailchat](https://www.bilibili.com/video/BV1aG411u7M8/)
+- [简单搭建插件化易拓展的开源即时聊天（IM）应用——Tailchat](https://www.bilibili.com/video/BV1UN4y117M8/)
 
 ## Article
 

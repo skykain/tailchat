@@ -9,6 +9,11 @@ dotenv.config();
 const port = process.env.PORT ? Number(process.env.PORT) : 11000;
 const apiUrl = process.env.API_URL || `http://127.0.0.1:${port}`;
 const staticHost = process.env.STATIC_HOST || '{BACKEND}';
+const staticUrl = process.env.STATIC_URL || `${staticHost}/static/`;
+const requestTimeout = process.env.REQUEST_TIMEOUT
+  ? Number(process.env.REQUEST_TIMEOUT)
+  : 10 * 1000; // default 0 (unit: milliseconds)
+
 export const config = {
   port,
   secret: process.env.SECRET || 'tailchat',
@@ -22,9 +27,11 @@ export const config = {
   storage: {
     type: 'minio', // 可选: minio
     minioUrl: process.env.MINIO_URL,
+    ssl: checkEnvTrusty(process.env.MINIO_SSL) ?? false,
     user: process.env.MINIO_USER,
     pass: process.env.MINIO_PASS,
     bucketName: process.env.MINIO_BUCKET_NAME || 'tailchat',
+    pathStyle: process.env.MINIO_PATH_STYLE === 'VirtualHosted' ? false : true,
 
     /**
      * 文件上传限制
@@ -36,7 +43,7 @@ export const config = {
       : 1 * 1024 * 1024,
   },
   apiUrl,
-  staticUrl: `${staticHost}/static/`,
+  staticUrl,
   enableOpenapi: true, // 是否开始openapi
 
   emailVerification: checkEnvTrusty(process.env.EMAIL_VERIFY) || false, // 是否在注册后验证邮箱可用性
@@ -45,11 +52,28 @@ export const config = {
     connectionUrl: process.env.SMTP_URI || '',
   },
   enablePrometheus: checkEnvTrusty(process.env.PROMETHEUS),
+  runner: {
+    requestTimeout,
+  },
+  /**
+   * 使用Tianji对网站进行监控
+   */
+  tianji: {
+    scriptUrl: process.env.TIANJI_SCRIPT_URL,
+    websiteId: process.env.TIANJI_WEBSITE_ID,
+  },
   feature: {
+    disableMsgpack: checkEnvTrusty(process.env.DISABLE_MESSAGEPACK), // 是否禁用socketio的 messgpack parser
     disableFileCheck: checkEnvTrusty(process.env.DISABLE_FILE_CHECK),
     disableLogger: checkEnvTrusty(process.env.DISABLE_LOGGER), // 是否关闭日志
+    disableInfoLog: checkEnvTrusty(process.env.DISABLE_INFO_LOG), // 是否关闭常规日志(仅保留错误日志)
+    disableTracing: checkEnvTrusty(process.env.DISABLE_TRACING), // 是否关闭链路追踪
     disableUserRegister: checkEnvTrusty(process.env.DISABLE_USER_REGISTER), // 是否关闭用户注册功能
     disableGuestLogin: checkEnvTrusty(process.env.DISABLE_GUEST_LOGIN), // 是否关闭用户游客登录功能
+    disableCreateGroup: checkEnvTrusty(process.env.DISABLE_CREATE_GROUP), // 是否禁用用户创建群组功能
+    disablePluginStore: checkEnvTrusty(process.env.DISABLE_PLUGIN_STORE), // 是否禁用用户插件中心功能
+    disableAddFriend: checkEnvTrusty(process.env.DISABLE_ADD_FRIEND), // 是否禁用用户添加好友功能
+    disableTelemetry: checkEnvTrusty(process.env.DISABLE_TELEMETRY), // 是否禁用遥测
   },
 };
 

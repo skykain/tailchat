@@ -47,3 +47,26 @@ export function is(it: string) {
 export function isValidStr(str: unknown): str is string {
   return typeof str == 'string' && str !== '';
 }
+
+export function isLocalMessageId(str: unknown): boolean {
+  if (typeof str !== 'string') {
+    return false;
+  }
+
+  return str.startsWith('localMessage_');
+}
+
+/**
+ * 是一个MongoDB的objectId
+ */
+export function isObjectId(str: any): boolean {
+  if (typeof str === 'string' && str.length === 12) {
+    return true;
+  }
+
+  if (typeof str === 'string' && /^[0-9A-Fa-f]{24}$/.test(str)) {
+    return true;
+  }
+
+  return false;
+}

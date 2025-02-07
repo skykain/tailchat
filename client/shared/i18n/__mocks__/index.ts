@@ -2,4 +2,8 @@ export const t = (key: string) => {
   return key;
 };
 
-export function onLanguageChange() {}
+export function onLanguageChanged() {}
+
+export function useTranslation() {
+  return { t };
+}

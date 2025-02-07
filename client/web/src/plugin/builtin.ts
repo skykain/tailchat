@@ -70,6 +70,31 @@ export const builtinPlugins: PluginManifest[] = _compact([
     'description.zh-CN': '增加 Markdown 面板支持',
     requireRestart: true,
   },
+  {
+    label: 'Identity and Access Management',
+    'label.zh-CN': 'IAM 插件',
+    name: 'com.msgbyte.iam',
+    url: '{BACKEND}/plugins/com.msgbyte.iam/index.js',
+    documentUrl:
+      'https://tailchat.msgbyte.com/docs/advanced-usage/plugins/com.msgbyte.iam',
+    version: '0.0.0',
+    author: 'moonrailgun',
+    description:
+      'Provide Tailchat with the function of conveniently accessing external account systems',
+    'description.zh-CN': '为Tailchat提供方便的接入外部账户系统的功能',
+    requireRestart: true,
+  },
+  {
+    label: 'Offline Icons',
+    'label.zh-CN': '离线图标',
+    name: 'com.msgbyte.offline-icons',
+    url: '/plugins/com.msgbyte.offline-icons/index.js',
+    version: '0.0.0',
+    author: 'moonrailgun',
+    description: 'Add prefetched icons which need run in intranet environment',
+    'description.zh-CN': '增加预获取的图标，适用于内网环境',
+    requireRestart: true,
+  },
   // isOffical
   isOffical && {
     label: 'Posthog',
@@ -114,4 +139,18 @@ export const builtinPlugins: PluginManifest[] = _compact([
     description: 'Add chatgpt into Tailchat',
     requireRestart: true,
   },
+  // 因为大段内容可能会有性能问题暂时移除，用户可以按需安装
+  // isOffical && {
+  //   label: 'Url metadata display',
+  //   'label.zh-CN': 'Url元数据展示',
+  //   name: 'com.msgbyte.linkmeta',
+  //   url: '{BACKEND}/plugins/com.msgbyte.linkmeta/index.js',
+  //   version: '0.0.0',
+  //   author: 'msgbyte',
+  //   description:
+  //     'Parse and get the overview of url information in the chat information, such as title/overview/thumbnail, support media path, directly display media player (specially support bilibili, automatically load the iframe player of bilibili)',
+  //   'description.zh-CN':
+  //     '解析并获取在聊天信息中的url信息概述，如标题/概述/缩略图, 支持媒体路径，直接显示媒体播放器(特殊支持bilibili，自动加载b站iframe播放器)',
+  //   requireRestart: false,
+  // },
 ]);

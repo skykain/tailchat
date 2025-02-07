@@ -1,6 +1,7 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   createDMConverse,
+  isValidStr,
   removeFriend,
   showAlert,
   showErrorToasts,
@@ -9,13 +10,21 @@ import {
   useAppDispatch,
   useAppSelector,
   useAsyncRequest,
+  useEvent,
+  useGlobalConfigStore,
+  useUserInfoList,
+  useUserSearch,
   userActions,
 } from 'tailchat-shared';
 import { UserListItem } from '@/components/UserListItem';
 import { IconBtn } from '@/components/IconBtn';
-import { Button, Dropdown, Menu, Tooltip } from 'antd';
+import { Button, Dropdown, Input, Tooltip } from 'antd';
 import { useNavigate } from 'react-router';
 import { Problem } from '@/components/Problem';
+import { closeModal, openModal } from '@/components/Modal';
+import { SetFriendNickname } from '@/components/modals/SetFriendNickname';
+import { Icon } from 'tailchat-design';
+import { Virtuoso } from 'react-virtuoso';
 
 /**
  * 好友列表
@@ -24,8 +33,14 @@ export const FriendList: React.FC<{
   onSwitchToAddFriend: () => void;
 }> = React.memo((props) => {
   const friends = useAppSelector((state) => state.user.friends);
+  const friendIds = useMemo(() => friends.map((f) => f.id), [friends]);
+  const userInfos = useUserInfoList(friendIds);
+  const { searchText, setSearchText, searchResult } = useUserSearch(userInfos);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const disableAddFriend = useGlobalConfigStore(
+    (state) => state.disableAddFriend
+  );
 
   const [, handleCreateConverse] = useAsyncRequest(
     async (targetId: string) => {
@@ -35,7 +50,18 @@ export const FriendList: React.FC<{
     [navigate]
   );
 
-  const handleRemoveFriend = useCallback(async (targetId: string) => {
+  const handleSetFriendNickname = useEvent(async (userId: string) => {
+    const key = openModal(
+      <SetFriendNickname
+        userId={userId}
+        onSuccess={() => {
+          closeModal(key);
+        }}
+      />
+    );
+  });
+
+  const handleRemoveFriend = useEvent(async (targetId: string) => {
     showAlert({
       message: t(
         '是否要从自己的好友列表中删除对方? 注意:你不会从对方的好友列表消失'
@@ -50,7 +76,7 @@ export const FriendList: React.FC<{
         }
       },
     });
-  }, []);
+  });
 
   if (friends.length === 0) {
     return (
@@ -58,9 +84,11 @@ export const FriendList: React.FC<{
         text={
           <div>
             <p className="mb-2">{t('暂无好友')}</p>
-            <Button type="primary" onClick={props.onSwitchToAddFriend}>
-              {t('立即添加')}
-            </Button>
+            {!disableAddFriend && (
+              <Button type="primary" onClick={props.onSwitchToAddFriend}>
+                {t('立即添加')}
+              </Button>
+            )}
           </div>
         }
       />
@@ -68,45 +96,66 @@ export const FriendList: React.FC<{
   }
 
   return (
-    <div className="py-2.5 px-5">
+    <div className="py-2.5 px-5 h-full flex flex-col">
       <div>{t('好友列表')}</div>
-      <div>
-        {friends.map((friendId) => (
-          <UserListItem
-            key={friendId}
-            userId={friendId}
-            actions={[
-              <Tooltip key="message" title={t('发送消息')}>
-                <div>
-                  <IconBtn
-                    icon="mdi:message-text-outline"
-                    onClick={() => handleCreateConverse(friendId)}
-                  />
-                </div>
-              </Tooltip>,
-              <div key="more">
-                <Dropdown
-                  menu={{
-                    items: [
-                      {
-                        key: 'delete',
-                        danger: true,
-                        onClick: () => handleRemoveFriend(friendId),
-                        label: t('删除'),
-                      },
-                    ],
-                  }}
-                  trigger={['click']}
-                  placement="bottomRight"
-                >
+
+      <Input
+        className="my-2"
+        placeholder={t('搜索好友')}
+        size="large"
+        prefix={<Icon fontSize={20} color="grey" icon="mdi:magnify" />}
+        value={searchText}
+        onChange={(e) => setSearchText(e.target.value)}
+      />
+
+      <div className="flex-1">
+        <Virtuoso
+          className="h-full"
+          data={searchResult}
+          itemContent={(index, item) => (
+            <UserListItem
+              key={item._id}
+              userId={item._id}
+              actions={[
+                <Tooltip key="message" title={t('发送消息')}>
                   <div>
-                    <IconBtn icon="mdi:dots-vertical" />
+                    <IconBtn
+                      icon="mdi:message-text-outline"
+                      onClick={() => handleCreateConverse(item._id)}
+                    />
                   </div>
-                </Dropdown>
-              </div>,
-            ]}
-          />
-        ))}
+                </Tooltip>,
+                <div key="more">
+                  <Dropdown
+                    menu={{
+                      items: [
+                        {
+                          key: 'setNickname',
+                          onClick: () => handleSetFriendNickname(item._id),
+                          label: isValidStr(item.nickname)
+                            ? t('更改好友昵称')
+                            : t('添加好友昵称'),
+                        },
+                        {
+                          key: 'delete',
+                          danger: true,
+                          onClick: () => handleRemoveFriend(item._id),
+                          label: t('删除'),
+                        },
+                      ],
+                    }}
+                    trigger={['click']}
+                    placement="bottomRight"
+                  >
+                    <div>
+                      <IconBtn icon="mdi:dots-vertical" />
+                    </div>
+                  </Dropdown>
+                </div>,
+              ]}
+            />
+          )}
+        />
       </div>
     </div>
   );

@@ -1,14 +1,16 @@
 {
   "name": "tailchat-shared",
+  "private": true,
   "version": "1.0.0",
   "main": "index.tsx",
   "repository": "https://github.com/msgbyte/tailchat.git",
   "author": "moonrailgun <moonrailgun@gmail.com>",
   "license": "GPLv3",
-  "private": true,
   "dependencies": {
     "@reduxjs/toolkit": "^1.7.1",
-    "@tanstack/react-query": "4.29.3",
+    "@tanstack/query-async-storage-persister": "4.32.6",
+    "@tanstack/react-query": "4.33.0",
+    "@tanstack/react-query-persist-client": "4.33.0",
     "axios": "^0.21.1",
     "crc": "^3.8.0",
     "dayjs": "^1.10.6",
@@ -25,6 +27,7 @@
     "regenerator-runtime": "^0.13.9",
     "socket.io-client": "^4.1.2",
     "socket.io-msgpack-parser": "^3.0.2",
+    "tailchat-types": "workspace:^",
     "url-regex": "^5.0.0",
     "yup": "^0.32.9",
     "zustand": "^4.3.6"

@@ -34,6 +34,8 @@ const Tip = styled.div`
 
 const Answer = styled.pre`
   white-space: pre-wrap;
+  max-height: 50vh;
+  overflow: auto;
 `;
 
 const ActionButton = styled.div`
@@ -49,6 +51,11 @@ const ActionButton = styled.div`
   }
 `;
 
+const ActionTip = styled.div`
+  font-size: 12px;
+  opacity: 0.6;
+`;
+
 export const AssistantPopover: React.FC<{
   onCompleted: () => void;
 }> = React.memo((props) => {
@@ -57,7 +64,7 @@ export const AssistantPopover: React.FC<{
   const [{ loading, value }, handleCallAI] = useAsyncRequest(
     async (question: string) => {
       // TODO: wait for replace
-      const { data } = await axios.post('https://uui1ik.laf.dev/chatgpt', {
+      const { data } = await axios.post('https://yyejoq.laf.dev/chatgpt', {
         question,
       });
 
@@ -113,7 +120,33 @@ export const AssistantPopover: React.FC<{
 
       <Tip>{Translate.helpMeTo}</Tip>
 
-      {typeof message === 'string' && message.length > 0 && (
+      <ActionButton
+        onClick={async () => {
+          const plainMessages = (
+            await Promise.all(
+              [...messages]
+                .filter((item) => !item.hasRecall) // filter recalled message
+                .slice(messages.length - 30, messages.length) // get last 30 message, too much will throw error
+                .map(
+                  async (item) =>
+                    `${
+                      (
+                        await getCachedUserInfo(item.author)
+                      ).nickname
+                    }: ${getMessageTextDecorators().serialize(
+                      item.content ?? ''
+                    )}`
+                )
+            )
+          ).join('\n');
+
+          handleCallAI(summaryMessagesPrompt + '\n' + plainMessages);
+        }}
+      >
+        {Translate.summaryMessages}
+      </ActionButton>
+
+      {typeof message === 'string' && message.length > 0 ? (
         <>
           <ActionButton
             onClick={() => handleCallAI(improveTextPrompt + message)}
@@ -136,32 +169,9 @@ export const AssistantPopover: React.FC<{
             {Translate.translateInputText}
           </ActionButton>
         </>
+      ) : (
+        <ActionTip>{Translate.inputTextShowMoreActionTip}</ActionTip>
       )}
-
-      <ActionButton
-        onClick={async () => {
-          const plainMessages = (
-            await Promise.all(
-              messages
-                .slice(messages.length - 30, messages.length) // get last 30 message, too much will throw error
-                .map(
-                  async (item) =>
-                    `${
-                      (
-                        await getCachedUserInfo(item.author)
-                      ).nickname
-                    }: ${getMessageTextDecorators().serialize(
-                      item.content ?? ''
-                    )}`
-                )
-            )
-          ).join('\n');
-
-          handleCallAI(summaryMessagesPrompt + plainMessages);
-        }}
-      >
-        {Translate.summaryMessages}
-      </ActionButton>
     </Root>
   );
 });

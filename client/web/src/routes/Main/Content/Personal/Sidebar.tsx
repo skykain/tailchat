@@ -5,7 +5,8 @@ import {
   t,
   useDMConverseList,
   useUserInfo,
-  DevContainer,
+  useGlobalConfigStore,
+  useAppSelector,
 } from 'tailchat-shared';
 import { SidebarDMItem } from './SidebarDMItem';
 import { openModal } from '@/components/Modal';
@@ -13,6 +14,7 @@ import { CreateDMConverse } from '@/components/modals/CreateDMConverse';
 import { SectionHeader } from '@/components/SectionHeader';
 import { CommonSidebarWrapper } from '@/components/CommonSidebarWrapper';
 import { pluginCustomPanel } from '@/plugin/common';
+import { CustomSidebarItem } from '../CustomSidebarItem';
 
 const SidebarSection: React.FC<
   PropsWithChildren<{
@@ -38,6 +40,15 @@ SidebarSection.displayName = 'SidebarSection';
 export const PersonalSidebar: React.FC = React.memo(() => {
   const converseList = useDMConverseList();
   const userInfo = useUserInfo();
+  const disablePluginStore = useGlobalConfigStore(
+    (state) => state.disablePluginStore
+  );
+  const hasFriendRequest = useAppSelector(
+    (state) =>
+      state.user.friendRequests.findIndex(
+        (item) => item.to === state.user.info?._id
+      ) >= 0
+  );
 
   return (
     <CommonSidebarWrapper data-tc-role="sidebar-personal">
@@ -48,37 +59,35 @@ export const PersonalSidebar: React.FC = React.memo(() => {
           name={t('好友')}
           icon={<Icon icon="mdi:account-multiple" />}
           to="/main/personal/friends"
+          badge={hasFriendRequest}
         />
-        <SidebarItem
-          name={t('插件中心')}
-          icon={<Icon icon="mdi:puzzle" />}
-          to="/main/personal/plugins"
-        />
+
+        {!disablePluginStore && (
+          <SidebarItem
+            name={t('插件中心')}
+            icon={<Icon icon="mdi:puzzle" />}
+            to="/main/personal/plugins"
+          />
+        )}
 
         {/* 插件自定义面板 */}
         {pluginCustomPanel
           .filter((p) => p.position === 'personal')
           .map((p) => (
-            <SidebarItem
-              key={p.name}
-              name={p.label}
-              icon={<Icon icon={p.icon} />}
-              to={`/main/personal/custom/${p.name}`}
-            />
+            <CustomSidebarItem key={p.name} panelInfo={p} />
           ))}
 
         <SidebarSection
           action={
-            <DevContainer>
-              <Icon
-                icon="mdi:plus"
-                onClick={() => openModal(<CreateDMConverse />)}
-              />
-            </DevContainer>
+            <Icon
+              icon="mdi:plus"
+              onClick={() => openModal(<CreateDMConverse />)}
+            />
           }
         >
           {t('私信')}
         </SidebarSection>
+
         {converseList.map((converse) => {
           return <SidebarDMItem key={converse._id} converse={converse} />;
         })}

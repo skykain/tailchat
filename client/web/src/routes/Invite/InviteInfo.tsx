@@ -1,12 +1,13 @@
 import { Avatar } from 'tailchat-design';
 import { InviteCodeExpiredAt } from '@/components/InviteCodeExpiredAt';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { UserName } from '@/components/UserName';
+import { UserNamePure } from '@/components/UserName';
 import { Divider } from 'antd';
 import React from 'react';
 import {
   getCachedGroupInviteInfo,
   getGroupBasicInfo,
+  GroupBasicInfo,
   showErrorToasts,
   t,
   useAsync,
@@ -15,6 +16,7 @@ import { JoinBtn } from './JoinBtn';
 
 interface Props {
   inviteCode: string;
+  onLoadInfo: (groupInfo: GroupBasicInfo) => void;
 }
 export const InviteInfo: React.FC<Props> = React.memo((props) => {
   const { inviteCode } = props;
@@ -29,6 +31,8 @@ export const InviteInfo: React.FC<Props> = React.memo((props) => {
       if (groupBasicInfo === null) {
         throw new Error(t('找不到群组信息'));
       }
+
+      props.onLoadInfo(groupBasicInfo);
 
       return {
         group: groupBasicInfo,
@@ -60,7 +64,7 @@ export const InviteInfo: React.FC<Props> = React.memo((props) => {
           />
         </div>
         <div>
-          <UserName className="font-bold" userId={inviteInfo.creator} />{' '}
+          <UserNamePure className="font-bold" userId={inviteInfo.creator} />{' '}
           {t('邀请您加入群组')}
         </div>
         <div className="text-xl my-2 font-bold">{inviteInfo.group.name}</div>

@@ -1,15 +1,12 @@
 import { Icon } from 'tailchat-design';
-import { Divider } from 'antd';
 import {
   isValidStr,
   loginWithEmail,
   t,
-  useAppSelector,
   useAsyncFn,
   useGlobalConfigStore,
 } from 'tailchat-shared';
 import React, { useEffect, useState } from 'react';
-import { Spinner } from '../../components/Spinner';
 import { string } from 'yup';
 import { useLocation, useNavigate } from 'react-router';
 import { setUserJWT } from '../../utils/jwt-helper';
@@ -23,23 +20,7 @@ import { LanguageSelect } from '@/components/LanguageSelect';
 import { EntryInput } from './components/Input';
 import { SecondaryBtn } from './components/SecondaryBtn';
 import { PrimaryBtn } from './components/PrimaryBtn';
-
-/**
- * TODO:
- * 第三方登录
- */
-const OAuthLoginView: React.FC = React.memo(() => {
-  return (
-    <>
-      <Divider>{t('或')}</Divider>
-
-      <div className="bg-gray-400 w-1/3 px-4 py-1 text-3xl text-center rounded-md cursor-pointer shadow-md">
-        <Icon className="mx-auto" icon="mdi:github" />
-      </div>
-    </>
-  );
-});
-OAuthLoginView.displayName = 'OAuthLoginView';
+import { pluginLoginAction } from '@/plugin/common';
 
 /**
  * 登录视图
@@ -156,6 +137,12 @@ export const LoginView: React.FC = React.memo(() => {
             <Icon icon="mdi:arrow-right" className="ml-1 inline" />
           </SecondaryBtn>
         )}
+
+        {pluginLoginAction.map((item) => {
+          const { name, component: Component } = item;
+
+          return <Component key={name} />;
+        })}
       </div>
 
       <div className="absolute bottom-4 left-0 space-x-2">

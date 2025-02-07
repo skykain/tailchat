@@ -14,21 +14,23 @@ import {
   t,
   humanizeMsDuration,
   useInterval,
-  useHasGroupPermission,
   PERMISSION,
   useGroupInfo,
   GroupPanelType,
+  useHasGroupPanelPermission,
 } from 'tailchat-shared';
+import { useFriendNicknameMap } from 'tailchat-shared';
 import { MembersPanel } from './MembersPanel';
 import { GroupPanelContainer } from './shared/GroupPanelContainer';
+import { MessageSearchPanel } from '../common/MessageSearch';
 
 /**
  * 聊天输入框显示状态管理
  */
-function useChatInputInfo(groupId: string) {
+function useChatInputInfo(groupId: string, panelId: string) {
   const userId = useUserId();
   const muteUntil = useGroupMemberMute(groupId, userId ?? '');
-  const [hasPermission] = useHasGroupPermission(groupId, [
+  const [hasPermission] = useHasGroupPanelPermission(groupId, panelId, [
     PERMISSION.core.message,
   ]);
 
@@ -79,7 +81,8 @@ export const TextPanel: React.FC<TextPanelProps> = React.memo(
     const group = useGroupInfo(groupId);
     const groupMembers = useGroupMemberInfos(groupId);
     const panelInfo = useGroupPanelInfo(groupId, panelId);
-    const { disabled, placeholder } = useChatInputInfo(groupId);
+    const { disabled, placeholder } = useChatInputInfo(groupId, panelId);
+    const friendNicknameMap = useFriendNicknameMap();
 
     if (!group) {
       return null;
@@ -117,6 +120,21 @@ export const TextPanel: React.FC<TextPanelProps> = React.memo(
         ]}
         suffixActions={({ setRightPanel }) => [
           <IconBtn
+            key="search"
+            title={t('聊天记录搜索')}
+            shape="square"
+            icon="mdi:text-search"
+            iconClassName="text-2xl"
+            onClick={() =>
+              setRightPanel({
+                name: t('聊天记录'),
+                panel: (
+                  <MessageSearchPanel groupId={groupId} converseId={panelId} />
+                ),
+              })
+            }
+          />,
+          <IconBtn
             key="members"
             title={t('成员列表')}
             shape="square"
@@ -134,7 +152,9 @@ export const TextPanel: React.FC<TextPanelProps> = React.memo(
         <ChatInputMentionsContextProvider
           users={groupMembers.map((m) => ({
             id: m._id,
-            display: m.nickname,
+            display: friendNicknameMap[m._id]
+              ? friendNicknameMap[m._id]
+              : m.nickname,
           }))}
           panels={group.panels
             .filter((p) => p.type !== GroupPanelType.GROUP)

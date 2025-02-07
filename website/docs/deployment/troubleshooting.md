@@ -1,7 +1,29 @@
 ---
-sidebar_position: 10
+sidebar_position: 50
 title: Troubleshooting
 ---
+
+## Deployment related
+
+### How to update the version?
+
+It is the same as getting the image when deploying
+
+```bash
+docker pull moonrailgun/tailchat
+docker tag moonrailgun/tailchat tailchat
+```
+
+Then restart the application, such as `docker compose up -d`
+
+### How to use the specified version?
+
+```bash
+docker pull moonrailgun/tailchat:1.8.4
+docker tag moonrailgun/tailchat:1.8.4 tailchat
+```
+
+Just specify the version number when pulling the image
 
 ## Server related
 
@@ -43,6 +65,24 @@ docker run --rm --name nginx-test -p 8080:80 nginx
 
 See: [https://github.com/msgbyte/tailchat/issues/79](https://github.com/msgbyte/tailchat/issues/79)
 
+### Getting `502 Invalid paramenters` when sending mail
+
+If the prompt is similar to: `Error: Mail command failed: 502 Invalid paramenters`
+
+```
+code:'EENVELOPE',
+response: '502 Invalid paramenters',
+responseCode: 502,
+command: 'MAIL FROM'
+```
+
+Please check whether your `SMTP_SENDER` content is correct, the general format is `xxx@example.com` or `"YourName" xxx@example.com`
+
+### Openapi service is always restart
+
+If this throw error `Issuer Identifier must be a valid web uri`
+
+you should make sure has been writing a url(`http://xxxx` or `https://xxxx`) in env `API_URL`
 
 ## Openapi platform related
 

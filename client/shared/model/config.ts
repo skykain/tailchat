@@ -7,6 +7,14 @@ import { defaultGlobalConfig } from '../utils/consts';
  */
 export interface GlobalConfig {
   /**
+   * Tianji 配置
+   */
+  tianji: {
+    scriptUrl?: string;
+    websiteId?: string;
+  };
+
+  /**
    * 上传文件体积
    * 默认1m
    */
@@ -27,6 +35,11 @@ export interface GlobalConfig {
   serverEntryImage?: string;
 
   /**
+   * 是否禁用 Socketio 的 Msgpack 解析器
+   */
+  disableMsgpack?: boolean;
+
+  /**
    * 是否禁用注册功能
    */
   disableUserRegister?: boolean;
@@ -35,6 +48,34 @@ export interface GlobalConfig {
    * 是否禁用游客登录
    */
   disableGuestLogin?: boolean;
+
+  /**
+   * 是否禁用创建群组功能
+   */
+  disableCreateGroup?: boolean;
+
+  /**
+   * 是否禁用插件中心
+   */
+  disablePluginStore?: boolean;
+
+  /**
+   * 是否禁用添加好友功能
+   */
+  disableAddFriend?: boolean;
+
+  /**
+   * 是否禁用遥测
+   */
+  disableTelemetry?: boolean;
+
+  announcement?:
+    | false
+    | {
+        id: string;
+        text: string;
+        link?: string;
+      };
 }
 
 export function getGlobalConfig(): GlobalConfig {

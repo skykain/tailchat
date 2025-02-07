@@ -6,10 +6,12 @@ files:
   - dist
   - node_modules
   - package.json
+  - assets/
 afterSign: .erb/scripts/notarize.js
 mac:
   target:
-    target: default
+    # Not need zip and auto update
+    target: dmg
     arch:
       - arm64
       - x64
@@ -40,7 +42,7 @@ directories:
   output: release/build
 extraResources:
   - ./assets/**
-publish:
-  provider: github
-  owner: msgbyte
-  repo: tailchat
+# publish:
+#   provider: github
+#   owner: msgbyte
+#   repo: tailchat

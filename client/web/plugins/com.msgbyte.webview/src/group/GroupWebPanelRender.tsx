@@ -1,9 +1,11 @@
 import React from 'react';
 import { Translate } from '../translate';
-import { WebviewKeepAlive } from '@capital/component';
+import { GroupPanelContainer, WebviewKeepAlive } from '@capital/component';
 import urlRegex from 'url-regex';
+import { useGroupPanelContext } from '@capital/common';
 
 const GroupWebPanelRender: React.FC<{ panelInfo: any }> = (props) => {
+  const { groupId, panelId } = useGroupPanelContext();
   const panelInfo = props.panelInfo;
 
   if (!panelInfo) {
@@ -18,9 +20,16 @@ const GroupWebPanelRender: React.FC<{ panelInfo: any }> = (props) => {
     // 不包含协议, 但是是个网址
     url = 'https://' + url;
   }
+  const background = panelInfo?.meta?.background ?? false;
 
   return (
-    <WebviewKeepAlive key={String(url)} className="w-full h-full" url={url} />
+    <GroupPanelContainer groupId={groupId} panelId={panelId}>
+      <WebviewKeepAlive
+        key={String(url)}
+        className={`w-full h-full ${background ? 'bg-white' : ''}`}
+        url={url}
+      />
+    </GroupPanelContainer>
   );
 };
 GroupWebPanelRender.displayName = 'GroupWebPanelRender';

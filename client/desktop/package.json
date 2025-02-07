@@ -38,18 +38,18 @@
     "build": "concurrently \"yarn build:main\" \"yarn build:renderer\"",
     "build:main": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.main.prod.ts",
     "build:renderer": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.renderer.prod.ts",
-    "postinstall": "ts-node .erb/scripts/check-native-dep.js && electron-builder install-app-deps",
+    "postinstall": "ts-node .erb/scripts/check-native-dep.js && electron-builder install-app-deps && cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.renderer.dev.dll.ts",
     "lint": "cross-env NODE_ENV=development eslint . --ext .js,.jsx,.ts,.tsx",
     "package": "cross-env DEBUG_PROD=true yarn package:nodebug --config.asar=false",
     "package:all": "yarn package:nodebug -mwl",
     "package:nodebug": "ts-node ./.erb/scripts/clean.js dist && yarn build && electron-builder build --publish never",
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir release/app",
-    "dev": "cross-env FE_URL=http://127.0.0.1:11011 SERVICE_URL=http://127.0.0.1:11000 yarn start",
-    "dev:nightly": "cross-env FE_URL=http://nightly.paw.msgbyte.com SERVICE_URL=https://tailchat-nightly.moonrailgun.com/ yarn start",
+    "dev": "yarn start",
     "start": "ts-node ./.erb/scripts/check-port-in-use.js && yarn start:renderer",
     "start:main": "cross-env NODE_ENV=development electronmon -r ts-node/register/transpile-only .",
     "start:preload": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.preload.dev.ts",
     "start:renderer": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack serve --config ./.erb/configs/webpack.config.renderer.dev.ts",
+    "deploy": "ts-node scripts/deploy.ts",
     "http-server": "ts-node test/http-server.ts",
     "test": "jest"
   },
@@ -113,20 +113,21 @@
     }
   },
   "dependencies": {
+    "antd": "^5.6.4",
     "electron-debug": "^3.2.0",
     "electron-is": "^3.0.0",
     "electron-log": "^4.4.7",
-    "electron-screenshots": "^0.5.15",
     "electron-serve": "^1.1.0",
     "electron-updater": "^5.0.1",
     "electron-window-state": "^5.0.3",
     "express": "^4.18.1",
     "get-port": "5.1.1",
+    "immer": "^10.0.2",
     "lodash": "^4.17.21",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
-    "react-router-dom": "^6.3.0",
-    "source-ref-loader": "^1.0.7"
+    "source-ref-loader": "^1.0.7",
+    "zustand": "^4.3.8"
   },
   "devDependencies": {
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.6",
@@ -134,6 +135,7 @@
     "@teamsupercell/typings-for-css-modules-loader": "^2.5.1",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.2.0",
+    "@types/gh-pages": "^3.2.1",
     "@types/jest": "^27.5.1",
     "@types/lodash": "^4.14.191",
     "@types/node": "^17.0.42",
@@ -175,7 +177,9 @@
     "eslint-plugin-promise": "^6.0.0",
     "eslint-plugin-react": "^7.29.4",
     "eslint-plugin-react-hooks": "^4.5.0",
+    "fast-glob": "^3.2.12",
     "file-loader": "^6.2.0",
+    "gh-pages": "^5.0.0",
     "html-webpack-plugin": "^5.5.0",
     "https-browserify": "^1.0.0",
     "identity-obj-proxy": "^3.0.0",
@@ -201,6 +205,7 @@
     "ts-jest": "27.1.4",
     "ts-loader": "^9.3.0",
     "ts-node": "^10.7.0",
+    "tsconfig-paths-webpack-plugin": "^4.0.1",
     "typescript": "^4.6.4",
     "url": "^0.11.0",
     "url-loader": "^4.1.1",
@@ -217,7 +222,7 @@
   "electronmon": {
     "patterns": [
       "!**/**",
-      "src/main/*"
+      "src/main/**/*"
     ],
     "logLevel": "quiet"
   }

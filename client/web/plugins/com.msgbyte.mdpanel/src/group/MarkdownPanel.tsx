@@ -42,7 +42,11 @@ const MarkdownEditorRender: React.FC<{ dataMap: Record<string, string> }> =
     }, [text]);
 
     return (
-      <MarkdownEditor value={text} onChange={(val: string) => setText(val)} />
+      <MarkdownEditor
+        value={text}
+        onChange={(val: string) => setText(val)}
+        imageUsage="group"
+      />
     );
   });
 MarkdownEditorRender.displayName = 'MarkdownEditorRender';
@@ -51,10 +55,10 @@ const MarkdownPanel: React.FC = React.memo(() => {
   return (
     <GroupExtraDataPanel
       names={['markdown']}
-      render={(info) => {
+      render={(dataMap: Record<string, string>) => {
         return (
           <MainContent>
-            <Markdown raw={info['markdown'] ?? ''} />
+            <Markdown raw={dataMap['markdown'] ?? ''} allowIframe={true} />
           </MainContent>
         );
       }}
@@ -66,13 +70,6 @@ const MarkdownPanel: React.FC = React.memo(() => {
             <div className="main">
               <MarkdownEditorRender dataMap={dataMap} />
             </div>
-
-            {/* <TextArea
-              defaultValue={dataMap['markdown']}
-              onChange={(e) => {
-                dataMap['markdown'] = e.target.value;
-              }}
-            /> */}
           </EditModalContent>
         );
       }}

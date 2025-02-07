@@ -18,7 +18,7 @@ import type { TFunction } from 'i18next';
 import { t } from './lib/i18n';
 import type { ValidationRuleObject } from 'fastest-validator';
 import type { BuiltinEventMap } from '../structs/events';
-import { CONFIG_GATEWAY_AFTER_HOOK } from '../const';
+import { CONFIG_GATEWAY_AFTER_HOOK, SYSTEM_USERID } from '../const';
 import _ from 'lodash';
 import {
   decodeNoConflictServiceNameKey,
@@ -179,7 +179,12 @@ export abstract class TcService extends Service {
             if (Array.isArray(afterHooks) && afterHooks.length > 0) {
               for (const action of afterHooks) {
                 // 异步调用, 暂时不修改值
-                ctx.call(String(action), ctx.params, { meta: ctx.meta });
+                ctx.call(String(action), ctx.params, {
+                  meta: {
+                    ...ctx.meta,
+                    actionResult: res,
+                  },
+                });
               }
             }
           } catch (err) {
@@ -190,6 +195,26 @@ export abstract class TcService extends Service {
         };
       }),
     };
+  }
+
+  /**
+   * 获取服务操作列表
+   */
+  getActionList() {
+    return Object.entries(this._actions).map(
+      ([name, schema]: [string, ServiceActionSchema]) => {
+        return {
+          name,
+          params: _.mapValues(schema.params, (type) => {
+            if (typeof type === 'string') {
+              return { type: type };
+            } else {
+              return type;
+            }
+          }),
+        };
+      }
+    );
   }
 
   registerMixin(mixin: Partial<ServiceSchema>): void {
@@ -400,7 +425,7 @@ export abstract class TcService extends Service {
    * @param fullActionName 完整的带servicename的action名
    * @param callbackAction 当前服务的action名，不需要带servicename
    */
-  async registryAfterActionHook(
+  async registerAfterActionHook(
     fullActionName: string,
     callbackAction: string
   ) {
@@ -418,6 +443,10 @@ export abstract class TcService extends Service {
    * NOTICE: 这里使用Redis作为缓存管理器，因此不需要通知所有的service
    */
   async cleanActionCache(actionName: string, keys: string[] = []) {
+    if (!this.broker.cacher) {
+      console.error('Can not clean cache because no cacher existed.');
+    }
+
     if (keys.length === 0) {
       await this.broker.cacher.clean(`${this.serviceName}.${actionName}`);
     } else {
@@ -444,6 +473,21 @@ export abstract class TcService extends Service {
     opts?: CallingOptions
   ): Promise<any> {
     return this.actions[actionName](params, opts);
+  }
+
+  protected systemCall<T>(
+    ctx: PureContext,
+    actionName: string,
+    params?: {},
+    opts?: CallingOptions
+  ): Promise<T> {
+    return ctx.call(actionName, params, {
+      ...opts,
+      meta: {
+        userId: SYSTEM_USERID,
+        ...(opts?.meta ?? {}),
+      },
+    });
   }
 
   private buildLoggerWithPrefix(_originLogger: LoggerInstance) {

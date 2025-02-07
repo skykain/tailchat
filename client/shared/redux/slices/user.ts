@@ -3,9 +3,14 @@ import _set from 'lodash/set';
 import type { UserLoginInfo } from '../../model/user';
 import type { FriendRequest } from '../../model/friend';
 
+export interface FriendInfo {
+  id: string;
+  nickname?: string;
+}
+
 export interface UserState {
   info: UserLoginInfo | null;
-  friends: string[]; // 好友的id列表
+  friends: FriendInfo[]; // 好友的id列表
   friendRequests: FriendRequest[];
 }
 
@@ -44,13 +49,13 @@ const userSlice = createSlice({
 
       _set(state.info, ['extra', fieldName], fieldValue);
     },
-    setFriendList(state, action: PayloadAction<string[]>) {
+    setFriendList(state, action: PayloadAction<FriendInfo[]>) {
       state.friends = action.payload;
     },
     setFriendRequests(state, action: PayloadAction<FriendRequest[]>) {
       state.friendRequests = action.payload;
     },
-    appendFriend(state, action: PayloadAction<string>) {
+    appendFriend(state, action: PayloadAction<FriendInfo>) {
       if (state.friends.some((id) => id === action.payload)) {
         return;
       }
@@ -59,7 +64,7 @@ const userSlice = createSlice({
     },
     removeFriend(state, action: PayloadAction<string>) {
       const friendId = action.payload;
-      const index = state.friends.indexOf(friendId);
+      const index = state.friends.findIndex((item) => item.id === friendId);
       if (index >= 0) {
         state.friends.splice(index, 1);
       }
@@ -77,6 +82,16 @@ const userSlice = createSlice({
       );
       if (index >= 0) {
         state.friendRequests.splice(index, 1);
+      }
+    },
+    setFriendNickname(
+      state,
+      action: PayloadAction<{ friendId: string; nickname: string }>
+    ) {
+      const { friendId, nickname } = action.payload;
+      const target = state.friends.find((f) => f.id === friendId);
+      if (target) {
+        target.nickname = nickname;
       }
     },
   },

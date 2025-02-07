@@ -20,6 +20,9 @@ import {
   PERMISSION,
   GroupPanelType,
   PanelFeature,
+  config,
+  SYSTEM_USERID,
+  db,
 } from 'tailchat-server-sdk';
 import moment from 'moment';
 
@@ -48,6 +51,10 @@ class GroupService extends TcService {
     this.registerAction('getGroupBasicInfo', this.getGroupBasicInfo, {
       params: {
         groupId: 'string',
+      },
+      cache: {
+        keys: ['groupId'],
+        ttl: 60 * 60, // 1 hour
       },
     });
     this.registerAction('getGroupInfo', this.getGroupInfo, {
@@ -79,6 +86,17 @@ class GroupService extends TcService {
         groupId: 'string',
       },
     });
+    this.registerAction('addMember', this.addMember, {
+      params: {
+        groupId: 'string',
+        userId: 'string',
+      },
+      visibility: 'public',
+    });
+    /**
+     * 加入群组
+     * @deprecated 请尽量使用 addMember
+     */
     this.registerAction('joinGroup', this.joinGroup, {
       params: {
         groupId: 'string',
@@ -129,6 +147,8 @@ class GroupService extends TcService {
         provider: { type: 'string', optional: true },
         pluginPanelName: { type: 'string', optional: true },
         meta: { type: 'object', optional: true },
+        permissionMap: { type: 'object', optional: true },
+        fallbackPermissions: { type: 'array', items: 'string', optional: true },
       },
     });
     this.registerAction('deleteGroupPanel', this.deleteGroupPanel, {
@@ -273,6 +293,15 @@ class GroupService extends TcService {
     const name = ctx.params.name;
     const panels = ctx.params.panels;
     const userId = ctx.meta.userId;
+    const t = ctx.meta.t;
+
+    if (
+      config.feature.disableCreateGroup === true &&
+      userId !== SYSTEM_USERID
+    ) {
+      // 环境变量禁止创建群组
+      throw new NoPermissionError(t('创建群组功能已被管理员禁用'));
+    }
 
     const group = await this.adapter.model.createGroup({
       name,
@@ -337,7 +366,9 @@ class GroupService extends TcService {
         name: 1,
         avatar: 1,
         owner: 1,
+        description: 1,
         members: 1,
+        config: 1,
       })
       .exec();
 
@@ -346,12 +377,15 @@ class GroupService extends TcService {
     }
 
     const groupMemberCount = group.members.length;
+    const backgroundImage = group.config['groupBackgroundImage'];
 
     return {
       name: group.name,
       avatar: group.avatar,
       owner: String(group.owner),
+      description: group.description ?? '',
       memberCount: groupMemberCount,
+      backgroundImage: backgroundImage,
     };
   }
 
@@ -379,26 +413,44 @@ class GroupService extends TcService {
     const userId = ctx.meta.userId;
     const t = ctx.meta.t;
     if (
-      !['name', 'avatar', 'panels', 'roles', 'fallbackPermissions'].includes(
-        fieldName
-      )
+      ![
+        'name',
+        'avatar',
+        'description',
+        'panels',
+        'roles',
+        'fallbackPermissions',
+      ].includes(fieldName)
     ) {
       throw new EntityError(t('该数据不允许修改'));
     }
 
-    const [isGroupOwner, hasRolePermission] = await call(
-      ctx
-    ).checkUserPermissions(groupId, userId, [
+    const [
+      isGroupOwner,
+      hasBaseInfoPermission,
+      hasRolePermission,
+      hasManagePanelPermission,
+    ] = await call(ctx).checkUserPermissions(groupId, userId, [
       PERMISSION.core.owner,
+      PERMISSION.core.groupBaseInfo,
       PERMISSION.core.manageRoles,
+      PERMISSION.core.managePanel,
     ]);
 
-    if (fieldName === 'fallbackPermissions') {
+    if (['roles', 'fallbackPermissions'].includes(fieldName)) {
       if (!hasRolePermission) {
-        throw new NoPermissionError(t('没有操作权限'));
+        throw new NoPermissionError(t('没有编辑群组身份组权限'));
+      }
+    } else if (['name', 'avatar', 'description'].includes(fieldName)) {
+      if (!hasBaseInfoPermission) {
+        throw new NoPermissionError(t('没有编辑群组信息权限'));
+      }
+    } else if (fieldName === 'panels') {
+      if (!hasManagePanelPermission) {
+        throw new NoPermissionError(t('没有编辑群组面板权限'));
       }
     } else if (!isGroupOwner) {
-      throw new NoPermissionError(t('不是群组管理员无法编辑'));
+      throw new NoPermissionError(t('不是群组所有者无法编辑'));
     }
 
     const group = await this.adapter.model.findById(groupId).exec();
@@ -472,15 +524,15 @@ class GroupService extends TcService {
   }
 
   /**
-   * 加入群组
+   * 群组添加成员
    */
-  async joinGroup(
+  async addMember(
     ctx: TcContext<{
       groupId: string;
+      userId: string;
     }>
   ) {
-    const groupId = ctx.params.groupId;
-    const userId = ctx.meta.userId;
+    const { groupId, userId } = ctx.params;
 
     if (!isValidStr(userId)) {
       throw new EntityError('用户id为空');
@@ -527,6 +579,24 @@ class GroupService extends TcService {
     );
 
     return group;
+  }
+
+  /**
+   * 加入群组
+   * @deprecated 请尽量使用 addMember
+   */
+  async joinGroup(
+    ctx: TcContext<{
+      groupId: string;
+    }>
+  ) {
+    const groupId = ctx.params.groupId;
+    const userId = ctx.meta.userId;
+
+    return this.localCall('addMember', {
+      groupId,
+      userId,
+    });
   }
 
   /**
@@ -601,20 +671,25 @@ class GroupService extends TcService {
     }>
   ) {
     const { groupId, memberIds, roles } = ctx.params;
-    const { userId } = ctx.meta;
 
-    await Promise.all(
-      memberIds.map((memberId) =>
-        this.adapter.model.updateGroupMemberField(
-          ctx,
-          groupId,
-          memberId,
-          'roles',
-          (member) =>
-            (member['roles'] = _.uniq([...member['roles'], ...roles])),
-          userId
-        )
-      )
+    await this.adapter.model.checkGroupFieldPermission(ctx, groupId, 'roles');
+
+    // 更新内容
+    await this.adapter.model.updateMany(
+      {
+        _id: new db.Types.ObjectId(groupId),
+        'members.userId': {
+          $in: [...memberIds],
+        },
+      },
+      {
+        $addToSet: {
+          'members.$[elem].roles': {
+            $each: roles,
+          },
+        },
+      },
+      { arrayFilters: [{ 'elem.userId': { $in: [...memberIds] } }] }
     );
 
     const group = await this.adapter.model.findById(groupId);
@@ -638,19 +713,25 @@ class GroupService extends TcService {
     }>
   ) {
     const { groupId, memberIds, roles } = ctx.params;
-    const { userId } = ctx.meta;
 
-    await Promise.all(
-      memberIds.map((memberId) =>
-        this.adapter.model.updateGroupMemberField(
-          ctx,
-          groupId,
-          memberId,
-          'roles',
-          (member) => (member['roles'] = _.without(member['roles'], ...roles)),
-          userId
-        )
-      )
+    await this.adapter.model.checkGroupFieldPermission(ctx, groupId, 'roles');
+
+    // 更新内容
+    await this.adapter.model.updateMany(
+      {
+        _id: new db.Types.ObjectId(groupId),
+        'members.userId': {
+          $in: [...memberIds],
+        },
+      },
+      {
+        $pull: {
+          'members.$[elem].roles': {
+            $in: roles,
+          },
+        },
+      },
+      { arrayFilters: [{ 'elem.userId': { $in: [...memberIds] } }] }
     );
 
     const group = await this.adapter.model.findById(groupId);
@@ -746,10 +827,21 @@ class GroupService extends TcService {
       provider?: string;
       pluginPanelName?: string;
       meta?: object;
+      permissionMap?: object;
+      fallbackPermissions?: string[];
     }>
   ) {
-    const { groupId, panelId, name, type, provider, pluginPanelName, meta } =
-      ctx.params;
+    const {
+      groupId,
+      panelId,
+      name,
+      type,
+      provider,
+      pluginPanelName,
+      meta,
+      permissionMap,
+      fallbackPermissions,
+    } = ctx.params;
     const { t, userId } = ctx.meta;
 
     const [hasPermission] = await call(ctx).checkUserPermissions(
@@ -773,6 +865,8 @@ class GroupService extends TcService {
             'panels.$[element].provider': provider,
             'panels.$[element].pluginPanelName': pluginPanelName,
             'panels.$[element].meta': meta,
+            'panels.$[element].permissionMap': permissionMap,
+            'panels.$[element].fallbackPermissions': fallbackPermissions,
           },
         },
         {
@@ -897,6 +991,7 @@ class GroupService extends TcService {
       )
       .exec();
 
+    this.cleanGroupInfoCache(groupId);
     const json = await this.notifyGroupInfoUpdate(ctx, group);
     return json;
   }
@@ -936,6 +1031,7 @@ class GroupService extends TcService {
       )
       .exec();
 
+    this.cleanGroupInfoCache(groupId);
     const json = await this.notifyGroupInfoUpdate(ctx, group);
     return json;
   }
@@ -968,6 +1064,7 @@ class GroupService extends TcService {
       roleName
     );
 
+    this.cleanGroupInfoCache(groupId);
     const json = await this.notifyGroupInfoUpdate(ctx, group);
     return json;
   }
@@ -1000,6 +1097,8 @@ class GroupService extends TcService {
       permissions
     );
 
+    this.cleanGroupInfoCache(groupId);
+    this.cleanGroupAllUserPermissionCache(groupId);
     const json = await this.notifyGroupInfoUpdate(ctx, group);
     return json;
   }
@@ -1053,7 +1152,6 @@ class GroupService extends TcService {
     }>
   ) {
     const { groupId, memberId, muteMs } = ctx.params;
-    const userId = ctx.meta.userId;
     const language = ctx.meta.language;
     const isUnmute = muteMs < 0;
 
@@ -1062,8 +1160,7 @@ class GroupService extends TcService {
       groupId,
       memberId,
       'muteUntil',
-      isUnmute ? undefined : new Date(new Date().valueOf() + muteMs),
-      userId
+      isUnmute ? undefined : new Date(new Date().valueOf() + muteMs)
     );
 
     this.notifyGroupInfoUpdate(ctx, group);
@@ -1192,6 +1289,7 @@ class GroupService extends TcService {
    * @param groupId 群组id
    */
   private cleanGroupInfoCache(groupId: string) {
+    this.cleanActionCache('getGroupBasicInfo', [groupId]);
     this.cleanActionCache('getGroupInfo', [groupId]);
   }
 

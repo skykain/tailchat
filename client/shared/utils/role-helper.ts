@@ -1,10 +1,11 @@
+import { GroupPanelType } from 'tailchat-types';
 import { model, t } from '..';
 
 /**
  * 所有人权限
  * 群组最低权限标识
  */
-export const AllPermission = Symbol('AllPermission');
+export const ALL_PERMISSION = Symbol('AllPermission');
 
 export interface PermissionItemType {
   /**
@@ -28,6 +29,15 @@ export interface PermissionItemType {
    * 是否依赖其他权限点
    */
   required?: string[];
+  /**
+   * 面板权限
+   * 如果是内置类型(数字) 则仅会在规定的类型中展示
+   * 如果是字符串数组则仅会在特定的插件面板中显示
+   * 如果不传则视为不适用于面板
+   *
+   * @default undefined
+   */
+  panel?: boolean | (string | GroupPanelType)[];
 }
 
 export const PERMISSION = {
@@ -35,10 +45,13 @@ export const PERMISSION = {
    * 非插件的权限点都叫core
    */
   core: {
+    viewPanel: 'core.viewPanel',
     message: 'core.message',
     invite: 'core.invite',
     unlimitedInvite: 'core.unlimitedInvite',
+    editInvite: 'core.editInvite',
     groupDetail: 'core.groupDetail',
+    groupBaseInfo: 'core.groupBaseInfo',
     groupConfig: 'core.groupConfig',
     manageUser: 'core.manageUser',
     managePanel: 'core.managePanel',
@@ -50,10 +63,18 @@ export const PERMISSION = {
 
 export const getPermissionList = (): PermissionItemType[] => [
   {
+    key: PERMISSION.core.viewPanel,
+    title: t('查看面板'),
+    desc: t('允许成员查看面板'),
+    default: true,
+    panel: true,
+  },
+  {
     key: PERMISSION.core.message,
     title: t('发送消息'),
     desc: t('允许成员在文字频道发送消息'),
     default: true,
+    panel: [GroupPanelType.TEXT],
   },
   {
     key: PERMISSION.core.invite,
@@ -69,16 +90,31 @@ export const getPermissionList = (): PermissionItemType[] => [
     required: [PERMISSION.core.invite],
   },
   {
+    key: PERMISSION.core.editInvite,
+    title: t('编辑邀请链接'),
+    desc: t('允许成员编辑邀请链接'),
+    default: false,
+    required: [PERMISSION.core.unlimitedInvite],
+  },
+  {
     key: PERMISSION.core.groupDetail,
     title: t('查看群组详情'),
     desc: t('允许成员查看群组详情'),
     default: false,
   },
   {
+    key: PERMISSION.core.groupBaseInfo,
+    title: t('修改群组基本信息'),
+    desc: t('允许成员修改群组基本信息'),
+    default: false,
+    required: [PERMISSION.core.groupDetail],
+  },
+  {
     key: PERMISSION.core.groupConfig,
     title: t('修改群组配置'),
     desc: t('允许成员修改群组配置'),
     default: false,
+    required: [PERMISSION.core.groupDetail],
   },
   {
     key: PERMISSION.core.manageUser,
@@ -119,10 +155,12 @@ export const getPermissionList = (): PermissionItemType[] => [
 
 /**
  * 获取默认权限列表
+ *
+ * @default ['core.message']
  */
 export function getDefaultPermissionList(): string[] {
   return getPermissionList()
-    .filter((p) => p.default)
+    .filter((p) => p.default === true)
     .map((p) => p.key);
 }
 

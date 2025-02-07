@@ -5,6 +5,7 @@ import {
   Ref,
   modelOptions,
   Severity,
+  index,
 } from '@typegoose/typegoose';
 import { Base, TimeStamps } from '@typegoose/typegoose/lib/defaultClasses';
 import type { Types } from 'mongoose';
@@ -18,6 +19,8 @@ import { User } from './user/user';
     allowMixed: Severity.ALLOW,
   },
 })
+@index({ bucketName: 1, objectName: 1 })
+@index({ url: 1 })
 export class File extends TimeStamps implements Base {
   _id: Types.ObjectId;
   id: string;
@@ -43,8 +46,25 @@ export class File extends TimeStamps implements Base {
   @prop()
   size: number;
 
+  /**
+   * 浏览量
+   */
+  @prop({
+    default: 0,
+  })
+  views: number;
+
   @prop()
   metaData: object;
+
+  /**
+   * 这个文件是用于哪里
+   * for example: chat, group, user
+   */
+  @prop({
+    default: 'unknown',
+  })
+  usage: string;
 }
 
 export type FileDocument = DocumentType<File>;

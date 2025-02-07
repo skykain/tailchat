@@ -77,10 +77,16 @@ class ConfigService extends TcService {
     const persistConfig = await this.adapter.model.getAllClientPersistConfig();
 
     return {
+      tianji: config.tianji,
       uploadFileLimit: config.storage.limit,
       emailVerification: config.emailVerification,
+      disableMsgpack: config.feature.disableMsgpack,
       disableUserRegister: config.feature.disableUserRegister,
       disableGuestLogin: config.feature.disableGuestLogin,
+      disableCreateGroup: config.feature.disableCreateGroup,
+      disablePluginStore: config.feature.disablePluginStore,
+      disableAddFriend: config.feature.disableAddFriend,
+      disableTelemetry: config.feature.disableTelemetry,
       ...persistConfig,
     };
   }
@@ -97,8 +103,12 @@ class ConfigService extends TcService {
     }>
   ) {
     const { key, value } = ctx.params;
-    await this.adapter.model.setClientPersistConfig(key, value);
+    const newConfig = await this.adapter.model.setClientPersistConfig(
+      key,
+      value
+    );
     await this.cleanActionCache('client', []);
+    this.broadcastNotify(ctx, 'updateClientConfig', newConfig);
   }
 
   async all(ctx: TcContext) {

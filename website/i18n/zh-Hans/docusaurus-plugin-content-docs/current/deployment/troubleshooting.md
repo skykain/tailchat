@@ -1,7 +1,29 @@
 ---
-sidebar_position: 10
+sidebar_position: 50
 title: 常见问题
 ---
+
+## 部署相关
+
+### 如何更新版本？
+
+和部署时获取镜像一样
+
+```bash
+docker pull moonrailgun/tailchat
+docker tag moonrailgun/tailchat tailchat
+```
+
+然后重启应用即可, 如 `docker compose up -d`
+
+### 如何使用指定版本?
+
+```bash
+docker pull moonrailgun/tailchat:1.8.4
+docker tag moonrailgun/tailchat:1.8.4 tailchat
+```
+
+在拉取镜像的时候指定版本号即可
 
 ## 服务端相关
 
@@ -43,6 +65,24 @@ docker run --rm --name nginx-test -p 8080:80 nginx
 
 见: [https://github.com/msgbyte/tailchat/issues/79](https://github.com/msgbyte/tailchat/issues/79)
 
+### 发送邮件时出现 `502 Invalid paramenters`
+
+如果提示类似: `Error: Mail command failed: 502 Invalid paramenters`
+
+```
+code:'EENVELOPE',
+response: '502 Invalid paramenters',
+responseCode: 502,
+command: 'MAIL FROM'
+```
+
+请检查你的`SMTP_SENDER`内容是否正确，一般的格式是 `xxx@example.com` 或 `"YourName" xxx@example.com`
+
+### Openapi 服务一直在重启
+
+如果抛出了错误 `Issuer Identifier must be a valid web uri`
+
+你应该确保在环境变量`API_URL`中填入了一个url(`http://xxxx` 或 `https://xxxx`)
 
 ## 开放平台相关
 

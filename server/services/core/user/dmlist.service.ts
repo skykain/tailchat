@@ -1,12 +1,11 @@
 import type { Ref } from '@typegoose/typegoose';
-import { Types } from 'mongoose';
 import type { Converse } from '../../../models/chat/converse';
 import type {
   UserDMList,
   UserDMListDocument,
   UserDMListModel,
 } from '../../../models/user/dmlist';
-import { TcService, TcContext, TcDbService } from 'tailchat-server-sdk';
+import { TcService, TcContext, TcDbService, db } from 'tailchat-server-sdk';
 
 interface UserDMListService
   extends TcService,
@@ -41,7 +40,7 @@ class UserDMListService extends TcService {
 
     const res = await this.adapter.model.findByIdAndUpdate(record.doc._id, {
       $addToSet: {
-        converseIds: new Types.ObjectId(converseId),
+        converseIds: new db.Types.ObjectId(converseId),
       },
     });
 
@@ -62,13 +61,13 @@ class UserDMListService extends TcService {
         },
         {
           $pull: {
-            converseIds: new Types.ObjectId(converseId),
+            converseIds: converseId,
           },
         }
       )
       .exec();
 
-    return modifiedCount;
+    return { modifiedCount };
   }
 
   /**

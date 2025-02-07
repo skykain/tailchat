@@ -1,6 +1,10 @@
-import { TcCacheCleaner } from '../../../mixins/cache.cleaner.mixin';
-import type { FriendDocument, FriendModel } from '../../../models/user/friend';
+import type {
+  Friend,
+  FriendDocument,
+  FriendModel,
+} from '../../../models/user/friend';
 import { TcService, TcDbService, TcContext } from 'tailchat-server-sdk';
+import { isNil } from 'lodash';
 
 interface FriendService
   extends TcService,
@@ -30,6 +34,12 @@ class FriendService extends TcService {
         targetId: 'string',
       },
     });
+    this.registerAction('setFriendNickname', this.setFriendNickname, {
+      params: {
+        targetId: 'string',
+        nickname: 'string',
+      },
+    });
   }
 
   /**
@@ -44,10 +54,13 @@ class FriendService extends TcService {
       },
     });
 
-    const records = await this.transformDocuments(ctx, {}, list);
-    const ids = records.map((r) => r.to);
+    const records: Friend[] = await this.transformDocuments(ctx, {}, list);
+    const res = records.map((r) => ({
+      id: r.to,
+      nickname: r.nickname,
+    }));
 
-    return ids;
+    return res;
   }
 
   /**
@@ -91,6 +104,33 @@ class FriendService extends TcService {
     });
 
     return isFriend;
+  }
+
+  /**
+   * 设置好友昵称
+   */
+  async setFriendNickname(
+    ctx: TcContext<{ targetId: string; nickname: string }>
+  ) {
+    const { targetId, nickname } = ctx.params;
+    const userId = ctx.meta.userId;
+    const t = ctx.meta.t;
+
+    const res = await this.adapter.model.findOneAndUpdate(
+      {
+        from: userId,
+        to: targetId,
+      },
+      {
+        nickname: nickname,
+      }
+    );
+
+    if (isNil(res)) {
+      throw new Error(t('设置昵称失败, 没有找到好友关系信息'));
+    }
+
+    return true;
   }
 }
 export default FriendService;

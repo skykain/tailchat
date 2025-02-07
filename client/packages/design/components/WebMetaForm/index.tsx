@@ -21,9 +21,22 @@ regField('select', FastifyFormSelect);
 regField('checkbox', FastifyFormCheckbox);
 regField('custom', FastifyFormCustom);
 
+let webFastifyFormConfig = {
+  submitLabel: 'Submit',
+};
+
+export function setWebFastifyFormConfig(config: typeof webFastifyFormConfig) {
+  webFastifyFormConfig = {
+    ...webFastifyFormConfig,
+    ...config,
+  };
+}
+
 const WebFastifyFormContainer: FastifyFormContainerComponent = React.memo(
   (props) => {
     const layout = props.layout;
+    const suffixElement = props.extraProps?.suffixElement;
+
     const submitButtonRender = useMemo(() => {
       return (
         <Form.Item
@@ -42,7 +55,7 @@ const WebFastifyFormContainer: FastifyFormContainerComponent = React.memo(
             onClick={() => props.handleSubmit()}
             disabled={props.canSubmit === false}
           >
-            {props.submitLabel ?? '提交'}
+            {props.submitLabel ?? webFastifyFormConfig.submitLabel}
           </Button>
         </Form.Item>
       );
@@ -61,6 +74,7 @@ const WebFastifyFormContainer: FastifyFormContainerComponent = React.memo(
         wrapperCol={layout === 'vertical' ? { xs: 24 } : { sm: 24, md: 16 }}
       >
         {props.children}
+        {suffixElement}
         {submitButtonRender}
       </Form>
     );

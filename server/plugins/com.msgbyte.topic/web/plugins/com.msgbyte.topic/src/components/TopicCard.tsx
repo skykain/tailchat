@@ -4,6 +4,8 @@ import {
   showMessageTime,
   showSuccessToasts,
   useAsyncRequest,
+  useCurrentUserInfo,
+  useGroupInfo,
 } from '@capital/common';
 import {
   IconBtn,
@@ -11,6 +13,7 @@ import {
   UserName,
   UserAvatar,
   MessageAckContainer,
+  Popconfirm,
 } from '@capital/component';
 import styled from 'styled-components';
 import type { GroupTopic } from '../types';
@@ -57,6 +60,11 @@ const Root = styled.div`
         margin-bottom: 6px;
       }
     }
+
+    .footer {
+      display: flex;
+      gap: 4px;
+    }
   }
 `;
 
@@ -76,6 +84,9 @@ export const TopicCard: React.FC<{
   const topic: Partial<GroupTopic> = props.topic ?? {};
   const [showReply, toggleShowReply] = useReducer((state) => !state, false);
   const [comment, setComment] = useState('');
+  const groupInfo = useGroupInfo(topic.groupId);
+  const groupOwnerId = groupInfo?.owner;
+  const userId = useCurrentUserInfo()._id;
 
   const [{ loading }, handleComment] = useAsyncRequest(async () => {
     await request.post('createComment', {
@@ -90,8 +101,16 @@ export const TopicCard: React.FC<{
     showSuccessToasts();
   }, [topic.groupId, topic.panelId, topic._id, comment]);
 
+  const [, handleDeleteTopic] = useAsyncRequest(async () => {
+    await request.post('delete', {
+      groupId: topic.groupId,
+      panelId: topic.panelId,
+      topicId: topic._id,
+    });
+  }, []);
+
   return (
-    <MessageAckContainer>
+    <MessageAckContainer converseId={topic.panelId} messageId={topic._id}>
       <Root>
         <div className="left">
           <UserAvatar userId={topic.author} />
@@ -119,6 +138,15 @@ export const TopicCard: React.FC<{
               icon="mdi:message-reply-text-outline"
               onClick={toggleShowReply}
             />
+
+            {userId === groupOwnerId && (
+              <Popconfirm
+                title={Translate.topicDeleteConfimTip}
+                onConfirm={handleDeleteTopic}
+              >
+                <IconBtn title={Translate.delete} icon="mdi:delete-outline" />
+              </Popconfirm>
+            )}
           </div>
 
           {showReply && (

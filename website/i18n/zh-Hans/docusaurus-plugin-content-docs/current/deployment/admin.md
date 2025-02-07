@@ -32,3 +32,10 @@ https://tailchat.example.com/admin/
 ```
 
 *注意不要忘记在最后有一个`/`*
+
+<details>
+  <summary>关于弃用的旧版admin</summary>
+  
+  旧版本 <strong>admin-old</strong> 将于v1.8.6版本被移除，如果你依旧期望使用旧版本，可以切换到之前的版本获取
+
+</details>

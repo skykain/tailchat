@@ -1,27 +1,40 @@
 import React from 'react';
 import {
+  groupActions,
   model,
   showSuccessToasts,
   t,
+  UploadFileResult,
+  useAppDispatch,
   useAsyncRequest,
   useGroupInfo,
 } from 'tailchat-shared';
+import { Image } from 'tailchat-design';
 import { Loading } from '@/components/Loading';
 import { FullModalField } from '@/components/FullModal/Field';
 import { FullModalCommonTitle } from '@/components/FullModal/CommonTitle';
-import { Switch } from 'antd';
+import { Button, Switch } from 'antd';
 import { pluginGroupConfigItems } from '@/plugin/common';
 import { ensurePluginNamePrefix } from '@/utils/plugin-helper';
+import { ImageUploader } from '@/components/ImageUploader';
 
 export const GroupConfig: React.FC<{
   groupId: string;
 }> = React.memo((props) => {
   const groupId = props.groupId;
   const groupInfo = useGroupInfo(groupId);
+  const dispatch = useAppDispatch();
 
   const [{ loading }, handleModifyConfig] = useAsyncRequest(
     async (configName: model.group.GroupConfigNames, configValue: any) => {
       await model.group.modifyGroupConfig(groupId, configName, configValue);
+      dispatch(
+        groupActions.updateGroupConfig({
+          groupId,
+          configName,
+          configValue,
+        })
+      );
       showSuccessToasts();
     },
     [groupId]
@@ -48,6 +61,64 @@ export const GroupConfig: React.FC<{
               handleModifyConfig('hideGroupMemberDiscriminator', checked)
             }
           />
+        }
+      />
+
+      {/* 如果开启了 hideGroupMemberDiscriminator 则视为禁止发起私信 */}
+      <FullModalField
+        title={t('禁止在群组发起私信')}
+        tip={t('群组隐私控制，防止通过群组恶意骚扰用户。')}
+        content={
+          <Switch
+            disabled={
+              loading || config['hideGroupMemberDiscriminator'] === true
+            }
+            checked={
+              (config['hideGroupMemberDiscriminator'] === true ||
+                config['disableCreateConverseFromGroup']) ??
+              false
+            }
+            onChange={(checked) =>
+              handleModifyConfig('disableCreateConverseFromGroup', checked)
+            }
+          />
+        }
+      />
+
+      <FullModalField
+        title={t('群组背景')}
+        tip={t('个性化配置群组背景，将会在群组邀请页面展示')}
+        content={
+          <>
+            <ImageUploader
+              aspect={16 / 9}
+              usage="group"
+              onUploadSuccess={(fileInfo: UploadFileResult) => {
+                handleModifyConfig('groupBackgroundImage', fileInfo.url);
+              }}
+            >
+              <Image
+                wrapperClassName="block"
+                style={{ width: 640, height: 360 }}
+                src={config['groupBackgroundImage']}
+              />
+            </ImageUploader>
+            <div className="text-xs opacity-80">
+              {t('建议比例: 16:9 | 建议大小: 1280x720')}
+            </div>
+
+            {config['groupBackgroundImage'] && (
+              <Button
+                className="mt-1"
+                type="primary"
+                onClick={() => {
+                  handleModifyConfig('groupBackgroundImage', '');
+                }}
+              >
+                {t('清除')}
+              </Button>
+            )}
+          </>
         }
       />
 

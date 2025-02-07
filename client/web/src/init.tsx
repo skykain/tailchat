@@ -1,4 +1,4 @@
-import { message, Modal } from 'antd';
+import { message, Modal, notification } from 'antd';
 import React from 'react';
 import {
   buildStorage,
@@ -12,16 +12,21 @@ import {
   t,
   fetchGlobalClientConfig,
   isDevelopment,
+  isProduction,
   setErrorHook,
   showToasts,
   parseUrlStr,
+  onLanguageLoaded,
+  version,
+  setNotification,
 } from 'tailchat-shared';
 import { getPopupContainer } from './utils/dom-helper';
 import { getUserJWT } from './utils/jwt-helper';
 import _get from 'lodash/get';
+import _uniqueId from 'lodash/uniqueId';
 import { recordMeasure } from './utils/measure-helper';
 import { postMessageEvent } from './utils/event-helper';
-import { setImageUrlParser } from 'tailchat-design';
+import { setImageUrlParser, setWebMetaFormConfig } from 'tailchat-design';
 
 recordMeasure('init');
 postMessageEvent('init');
@@ -70,7 +75,27 @@ setGlobalLoading((text) => {
   return hide;
 });
 
+setNotification((message, duration) => {
+  const key = _uniqueId('notification');
+  notification.open({
+    key,
+    message,
+    duration,
+    getContainer: getPopupContainer,
+  });
+
+  return () => {
+    notification.close(key);
+  };
+});
+
 setImageUrlParser(parseUrlStr);
+
+onLanguageLoaded(() => {
+  setWebMetaFormConfig({
+    submitLabel: t('提交'),
+  });
+});
 
 const backToLoginPage = (() => {
   let timer: number;
@@ -114,7 +139,16 @@ setErrorHook((err) => {
 /**
  * 获取前端配置
  */
-fetchGlobalClientConfig().catch((e) => {
-  showErrorToasts(t('全局配置加载失败'));
-  console.error('全局配置加载失败', e);
-});
+fetchGlobalClientConfig()
+  .then((config) => {
+    if (isProduction && !config.disableTelemetry) {
+      // 发送遥测信息
+      fetch(
+        `https://tianji.moonrailgun.com/telemetry/clnzoxcy10001vy2ohi4obbi0/cltpqundt1r4hoi4gk72uj3un.gif?name=tailchat&url=${window.location.origin}&v=${version}`
+      ).catch(() => {});
+    }
+  })
+  .catch((e) => {
+    showErrorToasts(t('全局配置加载失败'));
+    console.error('全局配置加载失败', e);
+  });

@@ -1,6 +1,5 @@
 import type { Context } from 'moleculer';
 import type { TFunction } from 'i18next';
-import type { UserStruct } from '../structs/user';
 import type { GroupStruct } from '../structs/group';
 import type { BuiltinEventMap } from '../structs/events';
 
@@ -47,11 +46,20 @@ export type TcContext<P = {}, M = {}> = TcPureContext<
      * 仅在 socket.io 的请求中会出现
      */
     socketId?: string;
+
+    /**
+     * 仅在 afterActionHook 请求中会出现
+     */
+    actionResult?: any;
   } & M
 >;
 
-export type GroupBaseInfo = Pick<GroupStruct, 'name' | 'avatar' | 'owner'> & {
+export type GroupBaseInfo = Pick<
+  GroupStruct,
+  'name' | 'avatar' | 'owner' | 'description'
+> & {
   memberCount: number;
+  backgroundImage?: string;
 };
 
 /**

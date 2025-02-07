@@ -119,14 +119,23 @@ export async function setLanguage(lang: AllowedLanguage): Promise<void> {
 /**
  * 获取i18n语言
  */
-export function getLanguage(): string {
-  return i18next.language;
+export function getLanguage(): AllowedLanguage {
+  return i18next.language as AllowedLanguage;
+}
+
+/**
+ * 语言加载
+ */
+export function onLanguageLoaded(
+  cb: (loaded: { [language: string]: { [namespace: string]: boolean } }) => void
+) {
+  i18next.on('loaded', cb);
 }
 
 /**
  * 监听语言变更
  */
-export function onLanguageChange(cb: (lang: string) => void) {
+export function onLanguageChanged(cb: (lang: string) => void) {
   i18next.on('languageChanged', cb);
 }
 

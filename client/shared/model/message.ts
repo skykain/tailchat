@@ -1,30 +1,24 @@
 import { request } from '../api/request';
+import type { ChatMessageReaction, ChatMessage } from 'tailchat-types';
+import {
+  createAutoMergedRequest,
+  createAutoSplitRequest,
+} from '../utils/request';
+import _uniq from 'lodash/uniq';
+import _flatten from 'lodash/flatten';
+import _zipObject from 'lodash/zipObject';
 
-export interface ChatMessageReaction {
-  name: string;
-  author: string;
-}
+export { ChatMessageReaction, ChatMessage };
 
-export interface ChatMessage {
-  _id: string;
-
-  content: string;
-
-  author?: string;
-
-  groupId?: string;
-
-  converseId: string;
-
-  reactions?: ChatMessageReaction[];
-
-  hasRecall?: boolean;
-
-  meta?: Record<string, unknown>;
-
-  createdAt?: string;
-
-  updatedAt?: string;
+export interface LocalChatMessage extends ChatMessage {
+  /**
+   * 本地添加消息的标识，用于标记该条消息尚未确定已经发送到服务端
+   */
+  isLocal?: boolean;
+  /**
+   * 判断是否发送失败
+   */
+  sendFailed?: boolean;
 }
 
 export interface SimpleMessagePayload {
@@ -98,9 +92,33 @@ export async function deleteMessage(messageId: string): Promise<boolean> {
 }
 
 /**
+ * 搜索聊天记录
+ * @param converseId 会话id
+ * @param messageText 聊天文本
+ */
+export async function searchMessage(
+  text: string,
+  converseId: string,
+  groupId?: string
+): Promise<ChatMessage[]> {
+  const { data } = await request.post('/api/chat/message/searchMessage', {
+    text,
+    converseId,
+    groupId,
+  });
+
+  return data;
+}
+
+interface LastMessageInfo {
+  converseId: string;
+  lastMessageId: string;
+}
+
+/**
  * 基于会话id获取会话最后一条消息的id
  */
-export async function fetchConverseLastMessages(
+async function fetchConverseLastMessages(
   converseIds: string[]
 ): Promise<{ converseId: string; lastMessageId: string }[]> {
   const { data } = await request.post(
@@ -113,19 +131,44 @@ export async function fetchConverseLastMessages(
   return data;
 }
 
+export const _fetchConverseLastMessageInfo = createAutoMergedRequest<
+  string[],
+  (LastMessageInfo | null)[]
+>(
+  createAutoSplitRequest(
+    async (converseIdsList) => {
+      const uniqList = _uniq(_flatten(converseIdsList));
+      const infoList = await fetchConverseLastMessages(uniqList);
+
+      const map = _zipObject<LastMessageInfo | null>(uniqList, infoList);
+
+      // 将请求结果根据传输来源重新分组
+      return converseIdsList.map((converseIds) =>
+        converseIds.map((converseId) => map[converseId] ?? null)
+      );
+    },
+    'serial',
+    100
+  )
+);
+export function getConverseLastMessageInfo(converseIds: string[]) {
+  return _fetchConverseLastMessageInfo(converseIds);
+}
+
 /**
  * @param converseId 会话ID
  * @param messageId 消息ID
  * @returns 消息附近的信息
  */
-export async function fetchNearbyMessage(
-  converseId: string,
-  messageId: string
-): Promise<ChatMessage[]> {
-  const { data } = await request.post('/api/chat/message/fetchNearbyMessage', {
-    converseId,
-    messageId,
-  });
+export async function fetchNearbyMessage(params: {
+  groupId?: string;
+  converseId: string;
+  messageId: string;
+}): Promise<ChatMessage[]> {
+  const { data } = await request.post(
+    '/api/chat/message/fetchNearbyMessage',
+    params
+  );
 
   return data;
 }

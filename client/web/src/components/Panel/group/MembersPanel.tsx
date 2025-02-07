@@ -1,20 +1,21 @@
 import { Icon } from 'tailchat-design';
-import { GroupUserPopover } from '@/components/popover/UserPopover/GroupUserPopover';
 import { UserListItem } from '@/components/UserListItem';
-import { Divider, Dropdown, Input, MenuProps, Skeleton } from 'antd';
+import { Dropdown, Input, Skeleton } from 'antd';
 import React, { useMemo } from 'react';
 import {
   getGroupConfigWithInfo,
-  PERMISSION,
   t,
   useCachedOnlineStatus,
   useGroupInfo,
-  useHasGroupPermission,
   UserBaseInfo,
 } from 'tailchat-shared';
 import { Problem } from '@/components/Problem';
 import { useGroupMemberAction } from '@/hooks/useGroupMemberAction';
 import { UserPopover } from '@/components/popover/UserPopover';
+import { GroupedVirtuoso } from 'react-virtuoso';
+import _take from 'lodash/take';
+import _sum from 'lodash/sum';
+import _get from 'lodash/get';
 
 interface MembersPanelProps {
   groupId: string;
@@ -30,9 +31,6 @@ export const MembersPanel: React.FC<MembersPanelProps> = React.memo((props) => {
   const membersOnlineStatus = useCachedOnlineStatus(
     members.map((m) => m.userId)
   );
-  const [allowManageUser] = useHasGroupPermission(groupId, [
-    PERMISSION.core.manageUser,
-  ]);
   const { hideGroupMemberDiscriminator } = getGroupConfigWithInfo(groupInfo);
 
   const {
@@ -44,7 +42,7 @@ export const MembersPanel: React.FC<MembersPanelProps> = React.memo((props) => {
     generateActionMenu,
   } = useGroupMemberAction(groupId);
 
-  const groupedMembers = useMemo(() => {
+  const sortedMembers = useMemo(() => {
     const online: UserBaseInfo[] = [];
     const offline: UserBaseInfo[] = [];
 
@@ -57,10 +55,34 @@ export const MembersPanel: React.FC<MembersPanelProps> = React.memo((props) => {
     });
 
     return {
-      online,
-      offline,
+      [t('在线')]: online,
+      [t('离线')]: offline,
     };
   }, [userInfos, membersOnlineStatus]);
+
+  const { groupCounts, groupNames, getGroupedMemberInfo } = useMemo(() => {
+    const groupMemberInfo = isSearching
+      ? { '': filteredGroupMembers }
+      : sortedMembers;
+
+    const groupCounts = Object.values(groupMemberInfo).map(
+      (item) => item.length
+    );
+    const groupNames = Object.keys(groupMemberInfo);
+
+    const getGroupedMemberInfo = (
+      index: number,
+      groupIndex: number
+    ): UserBaseInfo | null => {
+      const groupName = groupNames[groupIndex];
+      const prevIndexCount = _sum(_take(groupCounts, groupIndex));
+      const currentGroupIndex = index - prevIndexCount;
+
+      return _get(groupMemberInfo, [groupName, currentGroupIndex], null);
+    };
+
+    return { groupCounts, groupNames, getGroupedMemberInfo };
+  }, [isSearching, filteredGroupMembers, sortedMembers]);
 
   if (!groupInfo) {
     return <Problem />;
@@ -70,10 +92,13 @@ export const MembersPanel: React.FC<MembersPanelProps> = React.memo((props) => {
     return <Skeleton />;
   }
 
-  const renderUser = (member: UserBaseInfo) => {
-    if (allowManageUser) {
-      const menu: MenuProps = generateActionMenu(member);
+  const renderUser = (member: UserBaseInfo | null) => {
+    if (!member) {
+      return <div />;
+    }
 
+    const menu = generateActionMenu(member);
+    if ((menu.items ?? []).length > 0) {
       return (
         <Dropdown key={member._id} trigger={['contextMenu']} menu={menu}>
           <div>
@@ -98,7 +123,7 @@ export const MembersPanel: React.FC<MembersPanelProps> = React.memo((props) => {
   };
 
   return (
-    <div>
+    <div className="h-full flex flex-col">
       <div className="p-2">
         <Input
           placeholder={t('搜索成员')}
@@ -109,21 +134,22 @@ export const MembersPanel: React.FC<MembersPanelProps> = React.memo((props) => {
         />
       </div>
 
-      {isSearching ? (
-        filteredGroupMembers.map(renderUser)
-      ) : (
-        <>
-          {groupedMembers.online.map(renderUser)}
-
-          {groupedMembers.offline.length > 0 && (
-            <>
-              <Divider>{t('以下用户已离线')}</Divider>
-
-              {groupedMembers.offline.map(renderUser)}
-            </>
-          )}
-        </>
-      )}
+      <div className="flex-1">
+        <GroupedVirtuoso
+          className="h-full"
+          groupCounts={groupCounts}
+          groupContent={(index) => {
+            return (
+              <div className="pt-4 px-2.5 font-bold text-sm text-opacity-80 bg-content-light dark:bg-content-dark">
+                {groupNames[index]} - {groupCounts[index]}
+              </div>
+            );
+          }}
+          itemContent={(i, groupIndex) =>
+            renderUser(getGroupedMemberInfo(i, groupIndex))
+          }
+        />
+      </div>
     </div>
   );
 });

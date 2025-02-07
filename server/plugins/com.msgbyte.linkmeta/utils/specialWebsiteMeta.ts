@@ -13,18 +13,18 @@ const specialWebsiteMetaFetchers = [
     match: (url: string) => url.startsWith('https://www.bilibili.com/video/BV'),
     overwrite: async (url: string) => {
       // from https://github.com/simon300000/bili-api/blob/master/src/api/api.bilibili.com.js
-      const bvid = _.last(url.split('?')[0].split('/'));
+      const bvid = _.last(url.split('?')[0].split('/').filter(Boolean));
 
       const { data } = await got(
         `https://api.bilibili.com/x/web-interface/view?bvid=${bvid}`
-      ).json();
+      ).json<any>();
 
       const aid = _.get(data, 'aid');
       const cid = _.get(data, 'cid');
       if (aid && bvid && cid) {
         return {
           videos: [
-            `https://player.bilibili.com/player.html?aid=${aid}&bvid=${bvid}&cid=${cid}&page=1`,
+            `https://player.bilibili.com/player.html?aid=${aid}&bvid=${bvid}&cid=${cid}&page=1&autoplay=0`,
           ],
         };
       }

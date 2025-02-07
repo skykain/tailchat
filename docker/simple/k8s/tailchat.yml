@@ -1,5 +1,5 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: tailchat
   namespace: tailchat
@@ -7,6 +7,7 @@ spec:
   selector:
     matchLabels:
       app: tailchat
+  serviceName: tailchat
   replicas: 3
   template:
     metadata:
@@ -16,10 +17,10 @@ spec:
       containers:
         - name: tailchat
           image: moonrailgun/tailchat
-          imagePullPolicy: Always
+          # imagePullPolicy: Always
           env:
             - name: SERVICEDIR
-              value: services
+              value: services,plugins
             - name: TRANSPORTER
               value: redis://redis-service:6379
             - name: REDIS_URL
@@ -36,6 +37,22 @@ spec:
               value: com.msgbyte.tailchat
           ports:
             - containerPort: 11000
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 11000
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 2
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 11000
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 2
+            failureThreshold: 3
           resources:
             requests:
               cpu: 50m

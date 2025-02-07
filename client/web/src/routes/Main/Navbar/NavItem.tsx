@@ -2,8 +2,8 @@ import { Tooltip, Badge, BadgeProps } from 'antd';
 import type { ClassValue } from 'clsx';
 import clsx from 'clsx';
 import React, { PropsWithChildren } from 'react';
-import { useLocation } from 'react-router';
-import { Link } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router';
+import { useEvent } from 'tailchat-shared';
 
 export const NavbarNavItem: React.FC<
   PropsWithChildren<{
@@ -20,10 +20,20 @@ export const NavbarNavItem: React.FC<
   const { name, className, to, showPill = false, badge = false } = props;
   const location = useLocation();
   const isActive = typeof to === 'string' && location.pathname.startsWith(to);
+  const navigate = useNavigate();
+
+  const handleClick = useEvent(() => {
+    if (typeof to === 'string') {
+      navigate(to);
+    }
+    props.onClick?.();
+  });
 
   let inner = (
     <Tooltip
-      title={<div className="font-bold px-1.5 py-0.5">{name}</div>}
+      title={
+        name ? <div className="font-bold px-1.5 py-0.5">{name}</div> : null
+      }
       placement="right"
     >
       <div
@@ -35,7 +45,7 @@ export const NavbarNavItem: React.FC<
             'rounded-lg': isActive,
           }
         )}
-        onClick={props.onClick}
+        onClick={handleClick}
         data-testid={props['data-testid']}
       >
         {props.children}
@@ -43,8 +53,12 @@ export const NavbarNavItem: React.FC<
     </Tooltip>
   );
 
-  if (typeof to === 'string') {
-    inner = <Link to={to}>{inner}</Link>;
+  if (badge === true) {
+    inner = (
+      <Badge status="error" dot={true} offset={[0, 44]} {...props.badgeProps}>
+        {inner}
+      </Badge>
+    );
   }
 
   return (
@@ -67,10 +81,6 @@ export const NavbarNavItem: React.FC<
       )}
 
       {inner}
-
-      <div className="absolute right-2 bottom-0">
-        {badge === true && <Badge status="error" {...props.badgeProps} />}
-      </div>
     </div>
   );
 });
